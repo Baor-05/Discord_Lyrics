@@ -1,0 +1,70 @@
+{
+  "name": "discord-lyrics",
+  "version": "1.0.0",
+  "description": "DiscordLyrics desktop app for Spotify, SpotX, and Discord custom status.",
+  "author": "DiscordLyrics",
+  "dependencies": {
+    "express": "^4.21.2",
+    "he": "^1.2.0",
+    "node-stream-zip": "^1.15.0",
+    "totp-generator": "^1.0.0",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/he": "^1.2.3",
+    "@types/node": "^22.13.10",
+    "@types/ws": "^8.5.10",
+    "@yao-pkg/pkg": "^6.5.1",
+    "electron": "^32.3.3",
+    "electron-builder": "^25.1.8",
+    "rcedit": "^5.0.2",
+    "typescript": "^5.8.2"
+  },
+  "main": "dist/desktop.js",
+  "bin": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "desktop": "npm run build && electron dist/desktop.js",
+    "package:desktop": "npm run build && electron-builder --win dir --x64 && node scripts/update-exe-icon.js && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create-desktop-shortcut.ps1",
+    "package:win": "npm run build && pkg . --targets node22-win-x64 --output release/DiscordLyrics.exe",
+    "start": "node dist/index"
+  },
+  "pkg": {
+    "assets": [
+      "assets/**/*",
+      "static/**/*",
+      "VERSION"
+    ]
+  },
+  "build": {
+    "appId": "local.discordlyrics.desktop",
+    "productName": "DiscordLyrics",
+    "directories": {
+      "output": "desktop-release"
+    },
+    "files": [
+      "dist/**/*",
+      "static/**/*",
+      "package.json",
+      "VERSION"
+    ],
+    "extraResources": [
+      {
+        "from": "assets",
+        "to": "assets",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "icon": "assets/icon.ico",
+      "signAndEditExecutable": false,
+      "target": [
+        "dir"
+      ]
+    }
+  }
+}
