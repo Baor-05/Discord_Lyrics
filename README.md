@@ -8,58 +8,36 @@ DiscordLyrics là ứng dụng Windows giúp hiển thị lời bài hát đang 
 
 ## Tính Năng
 
-- Đọc bài hát đang phát từ Spotify Desktop, SpotX hoặc YouTube Music.
-- Không yêu cầu Spotify Premium cho chế độ Windows Media fallback.
-- Lấy lyric từ nhiều nguồn: LRCLib, NetEase Music, QQ Music và cache cục bộ.
-- Cache lyric vào máy để lần sau đổi bài nhanh hơn.
-- Tự lọc các dòng metadata như composer, lyricist, producer, `作曲`, `作词`.
+- Đọc nhạc từ `Spotify`, `SpotX` hoặc `YouTube Music`.
+- Chọn riêng chế độ Spotify/SpotX hoặc YouTube Music.
+- Lấy lyric tự động từ nhiều nguồn.
 - Gửi lyric hiện tại lên Discord Custom Status.
-- Nếu bài hát không có lyric, status hiển thị biểu tượng nhạc và tên bài.
-- Nếu đang ở đoạn intro hoặc đoạn nhạc không có lời, status hiển thị biểu tượng nhạc.
-- Tự xóa Discord status khi dừng nhạc hoặc tắt app.
-- Có giới hạn gửi Discord để giảm nguy cơ rate limit.
-- Tự đo độ trễ phản hồi Discord và có thể tự chỉnh độ trễ gửi.
-- Lưu token và toàn bộ setting vào `%APPDATA%\DiscordLyrics\settings.json`.
+- Tự xóa status Discord khi dừng nhạc hoặc tắt app.
+- Tự lưu token và setting.
 - Giao diện tiếng Việt.
-- Giao diện chính dạng Discord + Spotify.
-- Pop-up nổi thiết kế hình vuông tối giản chuẩn Spotify (`330x330`), luôn nằm trên cùng (Always on Top).
-- Pop-up tự động ẩn toàn bộ thanh cuộn, thanh tiến trình siêu mỏng và các nút phẳng tự phóng to nhẹ khi di chuột.
-- Nền của pop-up tự động thay đổi màu sắc mượt mà (Dynamic HSL Gradient) theo tông màu của từng bài hát.
-- Watermark nền của pop-up tự động chuyển đổi tương ứng khi chuyển nguồn phát (Spotify hoặc YouTube Music).
-- Pop-up có thể kéo thả di chuyển dễ dàng trên màn hình.
-- Thu nhỏ xuống system tray khi bấm nút đóng cửa sổ.
-- Có shortcut và icon app riêng khi đóng gói desktop.
+- Có pop-up nổi kiểu Spotify.
+- Pop-up có thể kéo, resize và luôn nằm trên cùng.
+- Thu nhỏ xuống system tray khi đóng app.
 
-## Cài Đặt Cho Người Dùng
+## Cài Đặt
 
-### Cách 1: Chạy bản desktop đã đóng gói
+### Yêu cầu:
 
-1. Tải hoặc mở thư mục bản build.
-2. Vào thư mục:
+- Windows 10 hoặc Windows 11.
+- Cài [Node.js](https://nodejs.org/en).
 
-```text
-desktop-release/win-unpacked/
-```
+### Cách 1: Dành cho người sử dụng phổ thông
 
-3. Chạy file:
-
-```text
-DiscordLyrics.exe
-```
-
+1. Tải file [DiscordLyrics.zip](https://github.com/Baor-05/Discord_Lyrics/releases/download/v1.2/DiscordLyrics.zip) trong phần Releases.
+2. Giải nén file `DiscordLyrics.zip`.
+3. Mở file `DiscordLyrics.exe`.
 4. Dán Discord token vào ô `Token Discord`.
 5. Bấm `Kiểm tra`.
 6. Mở Spotify, SpotX hoặc YouTube Music và phát nhạc.
 
 Khi bấm nút `X`, app không tắt hẳn mà thu nhỏ xuống khay hệ thống. Muốn thoát hoàn toàn, bấm chuột phải vào icon tray và chọn `Quit`.
 
-### Cách 2: Chạy từ mã nguồn
-
-Yêu cầu:
-
-- Windows 10 hoặc Windows 11.
-- Node.js 18 trở lên.
-- npm.
+### Cách 2: Dành cho dev
 
 Cài thư viện:
 
@@ -165,53 +143,12 @@ Ví dụ:
 
 Discord có độ trễ riêng, nên đặt `1ms` không có nghĩa là status sẽ hiện tức thì. Mức thực tế nên dùng thường là `200ms` đến `500ms`.
 
+Nên để chế độ Tự động chỉnh độ trễ gửi
+
 ### Giới hạn gửi Discord
 
 `Giới hạn gửi Discord` là khoảng cách tối thiểu giữa hai lần đổi status. Tính năng này giúp giảm nguy cơ bị Discord rate limit khi lyric đổi quá nhanh.
 
-## Cấu Trúc Thư Mục Quan Trọng
-
-```text
-src/
-  desktop.ts              Electron desktop window, tray, mini pop-up
-  index.ts                Luồng chạy chính
-  Settings.ts             Lưu và đọc setting
-  PlaybackState.ts        Trạng thái bài hát hiện tại
-  PlaybackStateUpdater.ts Đọc nhạc từ Spotify API hoặc Windows Media
-  LyricsFetcher.ts        Tìm lyric, cache lyric
-  StatusChanger.ts        Tính lyric hiện tại và gửi Discord status
-  WindowsMediaService.ts  Đọc phiên media từ Windows
-  Sources/                Các nguồn lyric
-  Panel/Server.ts         Server Express và WebSocket
-
-static/
-  panel.js                Giao diện panel và pop-up
-  index.html              Trang panel
-  logo_*.svg/png          Icon giao diện
-
-assets/
-  icon.ico                Icon app
-
-scripts/
-  update-exe-icon.js
-  create-desktop-shortcut.ps1
-```
-
-## File Không Được Đẩy Lên Git
-
-Các file/thư mục sau chứa dữ liệu cá nhân hoặc build output, đã được `.gitignore` chặn:
-
-```text
-settings.json
-desktop-release/
-dist/
-release/
-node_modules/
-cache/
-log.txt
-```
-
-Không dùng `git add -f` với các file trên.
 
 ## Ghi Chú Bảo Mật
 
