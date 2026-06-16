@@ -1,4 +1,4 @@
-# DiscordLyrics v1.2
+# DiscordLyrics v1.3
 
 DiscordLyrics là ứng dụng Windows giúp hiển thị lời bài hát đang phát lên Discord Custom Status. App đọc nhạc từ Spotify, SpotX hoặc YouTube Music thông qua Windows Media Session, lấy lyric từ các nguồn bên ngoài, rồi tự cập nhật trạng thái Discord theo thời gian.
 
@@ -131,6 +131,51 @@ Token chỉ được lưu trên máy của bạn trong file setting cục bộ. 
 - Chọn icon YouTube Music để đọc YouTube Music.
 
 Khi đổi nguồn, giao diện và icon pop-up sẽ đổi theo nguồn đang chạy.
+
+### Cài đặt YouTube Music
+
+DiscordLyrics có 2 cách nhận YouTube Music.
+
+#### Cách 1: Dùng app YouTube Music desktop
+
+1. Cài YouTube Music desktop theo hướng dẫn Windows tại [app-youtube-music#windows](https://github.com/code/app-youtube-music#windows).
+2. Mở YouTube Music desktop.
+3. Vào phần cài đặt của YouTube Music desktop và bật `Máy chủ API`.
+4. Đặt:
+   - Tên máy chủ: `127.0.0.1`
+   - Cổng: `26538`
+   - Chiến thuật xác thực: `Xác thực ngay yêu cầu đầu tiên`
+5. Trong DiscordLyrics, chọn icon YouTube Music.
+6. Giữ bật `Dùng API YouTube Music`.
+7. Khi YouTube Music hỏi cấp quyền API lần đầu, bấm cho phép.
+
+#### Cách 2: Dùng YouTube Music web
+
+Để nhận nhạc từ `music.youtube.com` trong Chrome/Edge, cần cài extension đi kèm:
+
+1. Mở trình duyệt và vào trang quản lý extension:
+   - Chrome: `chrome://extensions`
+   - Edge: `edge://extensions`
+2. Bật `Developer mode`.
+3. Chọn `Load unpacked`.
+4. Chọn thư mục:
+
+```text
+resources/browser-extension/ytmusic-web/
+```
+
+Nếu chạy từ mã nguồn, dùng thư mục:
+
+```text
+browser-extension/ytmusic-web/
+```
+
+Thứ tự ưu tiên khi chọn chế độ YouTube Music:
+
+1. YouTube Music desktop API đang phát.
+2. YouTube Music web đang phát.
+3. YouTube Music desktop API đang tạm dừng.
+4. Windows Media fallback.
 
 ### Dùng pop-up
 

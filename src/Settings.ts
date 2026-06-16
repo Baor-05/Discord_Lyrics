@@ -37,7 +37,16 @@ export class Settings {
         },
         activeSource: "spotify",
         discordEnabled: true,
-        miniMode: false
+        miniMode: false,
+        ytmusicApi: {
+            enabled: true,
+            host: "127.0.0.1",
+            port: 26538,
+            accessToken: ""
+        },
+        ytmusicWeb: {
+            enabled: true
+        }
     }
 
     public static timings = {
@@ -89,8 +98,26 @@ export class Settings {
 
         if (settings) {
             this.credentials = settings.credentials || this.credentials
-            this.view = settings.view || this.view
-            this.timings = settings.timings || this.timings
+            this.view = {
+                ...this.view,
+                ...(settings.view || {}),
+                advanced: {
+                    ...this.view.advanced,
+                    ...((settings.view && settings.view.advanced) || {})
+                },
+                ytmusicApi: {
+                    ...(this.view as any).ytmusicApi,
+                    ...((settings.view && settings.view.ytmusicApi) || {})
+                },
+                ytmusicWeb: {
+                    ...(this.view as any).ytmusicWeb,
+                    ...((settings.view && settings.view.ytmusicWeb) || {})
+                }
+            }
+            this.timings = {
+                ...this.timings,
+                ...(settings.timings || {})
+            }
             this.update = settings.update || this.update
             this.save()
         }

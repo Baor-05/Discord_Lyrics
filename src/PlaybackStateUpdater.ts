@@ -4,6 +4,8 @@ import { SpotifyService } from "./SpotifyService"
 import { Settings } from "./Settings"
 import { ExternalAuthServerAPI } from "./ExternalAuthServerAPI"
 import { WindowsMediaPlayback, WindowsMediaService } from "./WindowsMediaService"
+import { YouTubeMusicApiPlayback, YouTubeMusicApiService } from "./YouTubeMusicApiService"
+import { YouTubeMusicWebService } from "./YouTubeMusicWebService"
 
 function cleanTitle(title: string): string {
     if (!title) return ""
@@ -62,7 +64,7 @@ export class PlaybackStateUpdater {
         }
 
         if (activeSource === "ytmusic") {
-            await this.updateFromWindowsMedia("YouTube Music selected", "ytmusic")
+            await this.updateFromYouTubeMusic()
             return
         }
 
@@ -263,6 +265,91 @@ export class PlaybackStateUpdater {
                     this.lastApiUpdateTime = Date.now()
                 }
             }
+        }
+    }
+
+    private async updateFromYouTubeMusic(): Promise<void> {
+        const api = (Settings.view as any).ytmusicApi || {}
+        const web = (Settings.view as any).ytmusicWeb || {}
+        let pausedApiPlayback: YouTubeMusicApiPlayback | null = null
+
+        if (api.enabled !== false) {
+            try {
+                const playback = await YouTubeMusicApiService.readPlayback()
+
+                if (playback.hasSession && playback.title) {
+                    if (playback.isPlaying) {
+                        await this.applyExternalPlayback(playback, "ytmusic-api", "YouTube Music API")
+                        return
+                    }
+
+                    pausedApiPlayback = playback
+                }
+            } catch(e) {
+                this.playbackState.errorMessage = `YouTube Music API failed: ${(e as Error).message}`
+            }
+        }
+
+        if (web.enabled !== false) {
+            const webPlayback = YouTubeMusicWebService.readPlayback()
+            if (webPlayback.hasSession && webPlayback.title && (webPlayback.isPlaying || !pausedApiPlayback)) {
+                await this.applyExternalPlayback(webPlayback, "ytmusic-web", "YouTube Music Web")
+                return
+            }
+        }
+
+        if (pausedApiPlayback) {
+            await this.applyExternalPlayback(pausedApiPlayback, "ytmusic-api", "YouTube Music API")
+            return
+        }
+
+        await this.updateFromWindowsMedia("YouTube Music API unavailable", "ytmusic")
+    }
+
+    private async applyExternalPlayback(playback: YouTubeMusicApiPlayback, sourcePrefix: string, sourceLabel: string): Promise<void> {
+        const playbackState = this.playbackState
+        const songId = `${sourcePrefix}:${playback.videoId || playback.title}:${playback.artist || ""}`
+        const newProgress = playback.positionMs || 0
+        const isPlaying = playback.isPlaying === true
+        const isPlayingChanged = playbackState.isPlaying !== isPlaying
+        const songIdChanged = playbackState.songId !== songId
+
+        playbackState.isPlaying = isPlaying
+        playbackState.errorMessage = `Using ${sourceLabel} (${isPlaying ? "Playing" : "Paused"})`
+
+        if (songIdChanged) {
+            playbackState.songName = cleanTitle(playback.title || "")
+            playbackState.songAuthor = (playback.artist || "").normalize("NFC").trim()
+
+            playbackState.oldSongId = playbackState.songId
+            playbackState.songId = songId
+            playbackState.songDuration = playback.durationMs || 0
+            playbackState.songProgress = newProgress
+
+            this.lastApiProgress = newProgress
+            this.lastApiUpdateTime = Date.now()
+
+            await this.loadLyricsForCurrentSong()
+            return
+        }
+
+        if (isPlayingChanged || !isPlaying) {
+            playbackState.songDuration = playback.durationMs || 0
+            playbackState.songProgress = newProgress
+            this.lastApiProgress = newProgress
+            this.lastApiUpdateTime = Date.now()
+            return
+        }
+
+        const timeElapsed = Date.now() - this.lastApiUpdateTime
+        const isSeekBackward = newProgress < this.lastApiProgress - 1500
+        const isSeekForward = newProgress > this.lastApiProgress + timeElapsed + 2000
+
+        if (isSeekBackward || isSeekForward) {
+            playbackState.songDuration = playback.durationMs || 0
+            playbackState.songProgress = newProgress
+            this.lastApiProgress = newProgress
+            this.lastApiUpdateTime = Date.now()
         }
     }
 }

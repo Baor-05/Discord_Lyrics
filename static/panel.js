@@ -36,6 +36,42 @@ $(
             </section>
 
             <section class="settings-block">
+                <div class="block-title">
+                    <span class="channel-mark"></span>
+                    <div>
+                        <h2>YouTube Music API</h2>
+                        <p>Ưu tiên đọc từ máy chủ API local của YouTube Music desktop, sau đó mới dùng Windows Media.</p>
+                    </div>
+                </div>
+                <label class="switch-row" for="enable-ytmusic-api">
+                    <span>
+                        <strong>Dùng API YouTube Music</strong>
+                        <small>Mặc định: http://127.0.0.1:26538</small>
+                    </span>
+                    <input type="checkbox" id="enable-ytmusic-api" checked>
+                    <i></i>
+                </label>
+                <div class="field-grid api-grid">
+                    <label class="field-stack" for="ytmusic-api-host">
+                        <span>Host</span>
+                        <input type="text" id="ytmusic-api-host" class="text-input" value="127.0.0.1" spellcheck="false">
+                    </label>
+                    <label class="field-stack" for="ytmusic-api-port">
+                        <span>Cổng</span>
+                        <input type="text" id="ytmusic-api-port" class="text-input number-input" maxlength="5" value="26538" inputmode="numeric">
+                    </label>
+                </div>
+                <label class="switch-row" for="enable-ytmusic-web">
+                    <span>
+                        <strong>Nhận YouTube Music từ trình duyệt</strong>
+                        <small>Cần cài extension DiscordLyrics YouTube Music Web Bridge</small>
+                    </span>
+                    <input type="checkbox" id="enable-ytmusic-web" checked>
+                    <i></i>
+                </label>
+            </section>
+
+            <section class="settings-block">
                 <div class="block-title compact">
                     <span class="channel-mark"></span>
                     <h2>Hiển thị status</h2>
@@ -682,6 +718,10 @@ $(
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px;
         margin-bottom: 8px;
+    }
+
+    .api-grid {
+        grid-template-columns: minmax(0, 1fr) 120px;
     }
 
     .field-grid .field-stack > span {
@@ -1597,6 +1637,10 @@ const sendTimeOffset = $("#send-time-offset")
 const minSendInterval = $("#min-send-interval")
 const enableAutooffset = $("#enable-autooffset")
 const autooffset = $("#autooffset")
+const enableYtMusicApi = $("#enable-ytmusic-api")
+const enableYtMusicWeb = $("#enable-ytmusic-web")
+const ytMusicApiHost = $("#ytmusic-api-host")
+const ytMusicApiPort = $("#ytmusic-api-port")
 const terminalOutput = $("#terminal-output")
 const tokenState = $("#token-state")
 const songTitle = $("#song-title")
@@ -1663,7 +1707,16 @@ let settings = {
         },
         activeSource: "spotify",
         discordEnabled: true,
-        miniMode: false
+        miniMode: false,
+        ytmusicApi: {
+            enabled: true,
+            host: "127.0.0.1",
+            port: 26538,
+            accessToken: ""
+        },
+        ytmusicWeb: {
+            enabled: true
+        }
     },
     timings: {
         sendTimeOffset: 200,
@@ -1781,6 +1834,39 @@ minSendInterval.on("input", () => {
     saveSettings()
 })
 
+enableYtMusicApi.on("click", () => {
+    settings.view.ytmusicApi = settings.view.ytmusicApi || {}
+    settings.view.ytmusicApi.enabled = enableYtMusicApi.prop("checked")
+    saveSettings()
+})
+
+enableYtMusicWeb.on("click", () => {
+    settings.view.ytmusicWeb = settings.view.ytmusicWeb || {}
+    settings.view.ytmusicWeb.enabled = enableYtMusicWeb.prop("checked")
+    saveSettings()
+})
+
+ytMusicApiHost.on("input", () => {
+    const value = String(ytMusicApiHost.val()).trim()
+    settings.view.ytmusicApi = settings.view.ytmusicApi || {}
+    settings.view.ytmusicApi.host = value || "127.0.0.1"
+    saveSettings()
+})
+
+ytMusicApiPort.on("input", () => {
+    const value = Math.round(Number(String(ytMusicApiPort.val()).replace(",", ".")))
+
+    if (!Number.isFinite(value) || value <= 0 || value > 65535) {
+        ytMusicApiPort.css("color", "rgba(255, 160, 174, 1)")
+        return
+    }
+
+    ytMusicApiPort.css("color", "")
+    settings.view.ytmusicApi = settings.view.ytmusicApi || {}
+    settings.view.ytmusicApi.port = value
+    saveSettings()
+})
+
 
 function formatSeconds(seconds) {
     seconds = Number(seconds)
@@ -1872,6 +1958,10 @@ function loadSettings(settingsToLoad) {
     minSendInterval.val(settings.timings.minSendInterval || 700)
     enableAutooffset.prop("checked", settings.timings.enableAutooffset)
     autooffset.val(settings.timings.autooffset)
+    enableYtMusicApi.prop("checked", settings.view.ytmusicApi.enabled !== false)
+    enableYtMusicWeb.prop("checked", settings.view.ytmusicWeb.enabled !== false)
+    ytMusicApiHost.val(settings.view.ytmusicApi.host || "127.0.0.1")
+    ytMusicApiPort.val(settings.view.ytmusicApi.port || 26538)
     setTokenState(settings.credentials.token ? "Token đã nhập" : "Chưa kiểm tra", "muted")
 
     const activeSource = settings.view.activeSource || "spotify"

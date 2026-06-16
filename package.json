@@ -57,6 +57,13 @@
         "filter": [
           "**/*"
         ]
+      },
+      {
+        "from": "browser-extension",
+        "to": "browser-extension",
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "win": {

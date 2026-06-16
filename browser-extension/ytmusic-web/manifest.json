@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "DiscordLyrics YouTube Music Web Bridge",
+  "version": "1.0.0",
+  "description": "Send YouTube Music web playback to DiscordLyrics on localhost.",
+  "host_permissions": [
+    "http://127.0.0.1:8999/*",
+    "http://localhost:8999/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://music.youtube.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
