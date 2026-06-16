@@ -159,7 +159,7 @@ Nên để chế độ Tự động chỉnh độ trễ gửi
 
 `Giới hạn gửi Discord` là khoảng cách tối thiểu giữa hai lần đổi status. Tính năng này giúp giảm nguy cơ bị Discord rate limit khi lyric đổi quá nhanh.
 
-Khuyên Dùng:
+### Khuyên Dùng:
 1. Bật tự chỉnh Độ Trễ Gửi
 2. Giới hạn gửi Discord nên để 700 ~ 1200
 3. Tính trung Bình: 3 ~ 6
