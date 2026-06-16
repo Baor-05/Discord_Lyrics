@@ -27,7 +27,7 @@
   "scripts": {
     "build": "tsc",
     "desktop": "npm run build && electron dist/desktop.js",
-    "package:desktop": "npm run build && electron-builder --win dir --x64 && node scripts/update-exe-icon.js && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create-desktop-shortcut.ps1",
+    "package:desktop": "npm run build && electron-builder --win --x64 && node scripts/update-exe-icon.js && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create-desktop-shortcut.ps1",
     "package:win": "npm run build && pkg . --targets node22-win-x64 --output release/DiscordLyrics.exe",
     "start": "node dist/index"
   },
@@ -70,8 +70,17 @@
       "icon": "assets/icon.ico",
       "signAndEditExecutable": false,
       "target": [
-        "dir"
+        "dir",
+        "nsis"
       ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "DiscordLyrics",
+      "artifactName": "DiscordLyricsSetup.${ext}"
     }
   }
 }
