@@ -18,21 +18,45 @@ DiscordLyrics là ứng dụng Windows giúp hiển thị lời bài hát đang 
 - Có pop-up nổi kiểu Spotify.
 - Pop-up có thể kéo, resize và luôn nằm trên cùng.
 - Thu nhỏ xuống system tray khi đóng app.
+- Kiểm tra và cài bản cập nhật mới từ GitHub Releases.
 
 ## Cài Đặt
 
 
 
-### Cách 1: Dành cho người sử dụng phổ thông
+### Cách 1: Dành cho người dùng phổ thông
 
-1. Tải file [DiscordLyrics.zip](https://github.com/Baor-05/Discord_Lyrics/releases/download/v1.2/DiscordLyrics.zip) trong phần Releases.
-2. Giải nén file `DiscordLyrics.zip`.
-3. Mở file `DiscordLyrics.exe`.
-4. Dán Discord token vào ô `Token Discord`.
-5. Bấm `Kiểm tra`.
-6. Mở Spotify, SpotX hoặc YouTube Music và phát nhạc.
+Bạn không cần cài Node.js nếu chỉ muốn dùng app.
 
-Khi bấm nút `X`, app không tắt hẳn mà thu nhỏ xuống khay hệ thống. Muốn thoát hoàn toàn, bấm chuột phải vào icon tray và chọn `Quit`.
+#### Cài bằng file setup
+
+1. Mở trang [Releases](https://github.com/Baor-05/Discord_Lyrics/releases).
+2. Tải file `DiscordLyricsSetup.exe` ở bản mới nhất.
+3. Mở `DiscordLyricsSetup.exe` và cài đặt như app Windows bình thường.
+4. Sau khi cài xong, mở `DiscordLyrics`.
+5. Dán Discord token vào ô `Token Discord`.
+6. Bấm `Kiểm tra`.
+7. Chọn nguồn nhạc ở thanh icon bên trái:
+   - Icon Spotify: dùng cho Spotify hoặc SpotX.
+   - Icon YouTube Music: dùng cho YouTube Music.
+8. Mở app nhạc và phát bài hát.
+
+#### Chạy bản portable bằng file zip
+
+Nếu không muốn cài đặt vào Windows:
+
+1. Tải file [DiscordLyrics.zip](https://github.com/Baor-05/Discord_Lyrics/releases/download/v1.3/DiscordLyrics.zip).
+2. Giải nén file zip.
+3. Mở thư mục vừa giải nén.
+4. Chạy `DiscordLyrics.exe`.
+
+#### Khi đóng app
+
+Khi bấm nút `X`, app không tắt hẳn mà thu nhỏ xuống khay hệ thống. Muốn thoát hoàn toàn, bấm chuột phải vào icon DiscordLyrics ở tray và chọn `Quit`.
+
+#### Cập nhật app
+
+Trong app, kéo xuống mục `Cập nhật app`, sau đó bấm `Kiểm tra cập nhật`. Nếu có bản mới, bấm `Cài bản mới`; app sẽ tự tải `DiscordLyricsSetup.exe` và mở trình cài đặt.
 
 ### Cách 2: Dành cho dev
 
@@ -186,6 +210,14 @@ Thứ tự ưu tiên khi chọn chế độ YouTube Music:
 5. Bấm icon mở rộng để quay lại panel đầy đủ.
 
 Kích thước nhỏ nhất của pop-up là `250x50`.
+
+### Cập nhật app
+
+Trong panel, mở mục `Cập nhật app`.
+
+- Bấm `Kiểm tra cập nhật` để kiểm tra bản mới trên GitHub Releases.
+- Nếu có bản mới, bấm `Cài bản mới`; app sẽ tải `DiscordLyricsSetup.exe`, mở trình cài đặt và tự đóng để Windows cập nhật file.
+- Có thể bật `Tự kiểm tra cập nhật` nếu muốn app tự kiểm tra khi khởi động.
 
 ### Chỉnh độ trễ
 

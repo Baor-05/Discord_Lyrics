@@ -1,128 +1,198 @@
-import { join, resolve } from "path"
-import { readFileSync, copyFileSync, createWriteStream, existsSync, mkdirSync, readdirSync, rmSync } from "fs"
-import { Readable } from "stream"
-import zip from "node-stream-zip"
+import { createWriteStream, existsSync, mkdirSync, readFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { basename, join } from "node:path"
+import { spawn } from "node:child_process"
+import { Readable } from "node:stream"
+import { pipeline } from "node:stream/promises"
+
+type ReleaseAsset = {
+    name: string
+    browser_download_url: string
+}
+
+type GithubRelease = {
+    html_url: string
+    tag_name: string
+    name?: string
+    prerelease?: boolean
+    draft?: boolean
+    assets: ReleaseAsset[]
+}
+
+export type UpdateCheckResult = {
+    currentVersion: string
+    latestVersion: string
+    hasUpdate: boolean
+    releaseUrl?: string
+    installerAssetName?: string
+    message: string
+}
 
 export class Updater {
-    public static async tryUpdate(): Promise<void> {
-        console.log("Checking for updates...")
+    private static readonly owner = "Baor-05"
+    private static readonly repo = "Discord_Lyrics"
+    private static readonly apiUrl = `https://api.github.com/repos/${Updater.owner}/${Updater.repo}/releases/latest`
 
-        if (await Updater.checkUpdate()) {
-            console.log("Found an update. Starting download...")
+    public static async tryUpdate(): Promise<boolean> {
+        const update = await Updater.checkLatest()
 
-            await Updater.forceUpdate()
+        if (!update.hasUpdate) {
+            return false
+        }
 
-            console.log("DiscordLyrics updated successfully! Please run \"npm install\" & restart to apply changes.")
+        await Updater.downloadAndRunLatest()
+        return true
+    }
 
-            process.exit(0)
+    public static async checkLatest(): Promise<UpdateCheckResult> {
+        const currentVersion = Updater.getCurrentVersion()
+        const release = await Updater.fetchLatestRelease()
+        const latestVersion = Updater.cleanVersion(release.tag_name || release.name || "0.0.0")
+        const installerAsset = Updater.findInstallerAsset(release.assets)
+        const hasUpdate = Updater.compareVersions(latestVersion, currentVersion) > 0
+
+        if (!hasUpdate) {
+            return {
+                currentVersion,
+                latestVersion,
+                hasUpdate: false,
+                releaseUrl: release.html_url,
+                installerAssetName: installerAsset?.name,
+                message: `Bạn đang dùng bản mới nhất (${currentVersion}).`
+            }
+        }
+
+        if (!installerAsset) {
+            return {
+                currentVersion,
+                latestVersion,
+                hasUpdate: true,
+                releaseUrl: release.html_url,
+                message: `Có bản ${latestVersion}, nhưng release chưa có DiscordLyricsSetup.exe.`
+            }
+        }
+
+        return {
+            currentVersion,
+            latestVersion,
+            hasUpdate: true,
+            releaseUrl: release.html_url,
+            installerAssetName: installerAsset.name,
+            message: `Có bản mới ${latestVersion}. Có thể tải và cài đặt ngay.`
         }
     }
 
-    public static async forceUpdate(): Promise<void> {
-        const downloadPath = join(__dirname, "../temp")
-        const exclude = [
-            "settings.json",
-            "cache",
-            ".git",
-            "temp",
-            "log.txt",
-            "node_modules",
-            "package-lock.json"
-        ]
+    public static async downloadAndRunLatest(): Promise<UpdateCheckResult> {
+        const update = await Updater.checkLatest()
 
-        if (existsSync(downloadPath)) {
-            rmSync(downloadPath, { recursive: true, force: true })
+        if (!update.hasUpdate) {
+            return update
         }
 
-        mkdirSync(downloadPath)
+        const release = await Updater.fetchLatestRelease()
+        const installerAsset = Updater.findInstallerAsset(release.assets)
 
-        await Updater.downloadRepo("OvalQuilter", "lyrics-status", "v3", downloadPath)
+        if (!installerAsset) {
+            throw new Error("Release mới không có DiscordLyricsSetup.exe")
+        }
 
-        Updater.replaceFiles(join(downloadPath, "./lyrics-status-3"), join(__dirname, "../"), exclude)
+        const downloadPath = await Updater.downloadAsset(installerAsset, update.latestVersion)
+        Updater.runInstaller(downloadPath)
+
+        return {
+            ...update,
+            message: "Đã mở trình cài đặt bản mới. App sẽ tự đóng để Windows cập nhật file."
+        }
     }
 
-    public static async checkUpdate(): Promise<boolean> {
-        const version = await (await fetch("https://github.com/OvalQuilter/lyrics-status/raw/refs/heads/v3/VERSION")).text()
+    private static async fetchLatestRelease(): Promise<GithubRelease> {
+        const response = await fetch(Updater.apiUrl, {
+            headers: {
+                "Accept": "application/vnd.github+json",
+                "User-Agent": "DiscordLyrics-Updater"
+            }
+        })
 
-        return readFileSync(join(__dirname, "../VERSION"), { encoding: "utf-8" }) !== version;
+        if (!response.ok) {
+            throw new Error(`GitHub trả về HTTP ${response.status}`)
+        }
+
+        return await response.json() as GithubRelease
     }
 
-    public static async downloadRepo(userName: string, repoName: string, branch: string, outputDir: string): Promise<void> {
-        const url = `https://github.com/${userName}/${repoName}/archive/refs/heads/${branch}.zip`
-        const resolvedOutputDir = resolve(outputDir)
-        const downloadPath = join(resolvedOutputDir, `v3.zip`)
+    private static async downloadAsset(asset: ReleaseAsset, version: string): Promise<string> {
+        const response = await fetch(asset.browser_download_url, {
+            headers: {
+                "User-Agent": "DiscordLyrics-Updater"
+            }
+        })
 
+        if (!response.ok || !response.body) {
+            throw new Error(`Không tải được ${asset.name}. HTTP ${response.status}`)
+        }
+
+        const outputDir = join(tmpdir(), "DiscordLyrics", "updates", Updater.cleanVersion(version))
         if (!existsSync(outputDir)) {
             mkdirSync(outputDir, { recursive: true })
         }
 
-        const response = await fetch(url)
-        const downloadStream = createWriteStream(downloadPath)
+        const safeName = basename(asset.name || "DiscordLyricsSetup.exe")
+        const outputPath = join(outputDir, safeName)
+        await pipeline(Readable.fromWeb(response.body as any), createWriteStream(outputPath))
 
-        await new Promise<void>((res, rej) => {
-            Readable.fromWeb(response.body!)
-            .pipe(downloadStream)
-            .on("finish", () => res())
-           })
-
-        const file = new zip.async({ file: downloadPath })
-
-        await file.extract(null, outputDir)
+        return outputPath
     }
 
-    public static replaceFiles(srcPath: string, dstPath: string, exclude: string[]): void {
-        const resolvedSrcPath = resolve(srcPath)
-        const resolvedDstPath = resolve(dstPath)
-
-        const resolvedExclude = exclude.map((path) => {
-            return resolve(path)
+    private static runInstaller(installerPath: string): void {
+        const child = spawn(installerPath, [], {
+            detached: true,
+            stdio: "ignore"
         })
 
-        const srcFiles = readdirSync(resolvedSrcPath, { withFileTypes: true })
-        const dstFiles = readdirSync(resolvedDstPath, { withFileTypes: true })
+        child.unref()
+    }
 
-        const needsDelete: Set<string> = new Set()
-        const needsIgnore: Set<string> = new Set()
-        // For deleting files that doesn't exist in src dir
+    private static findInstallerAsset(assets: ReleaseAsset[] = []): ReleaseAsset | undefined {
+        return assets.find((asset) => /^DiscordLyricsSetup\.exe$/i.test(asset.name))
+            || assets.find((asset) => /setup.*\.exe$/i.test(asset.name))
+            || assets.find((asset) => /\.exe$/i.test(asset.name))
+    }
 
-        for (let i = 0; i < srcFiles.length; i++) {
-            const srcFile = srcFiles[i]
-            const srcFilePath = join(srcPath, srcFile.name)
-            const srcIsDirectory = srcFile.isDirectory()
-
-            for (let j = 0; j < dstFiles.length; j++) {
-                const dstFile = dstFiles[j]
-                const dstFilePath = join(dstPath, dstFile.name)
-                const dstIsDirectory = dstFile.isDirectory()
-
-                if (resolvedExclude.includes(dstFilePath)) continue
-
-                if (srcFile.name !== dstFile.name) {
-                    needsDelete.add(dstFilePath)
-
-                    continue
-                }
-
-                needsIgnore.add(dstFilePath)
-
-                if (srcIsDirectory) {
-                    if (dstIsDirectory) {
-                        Updater.replaceFiles(srcFilePath, dstFilePath, resolvedExclude)
-                    } else {
-                        rmSync(dstFilePath, { recursive: true, force: true })
-                        copyFileSync(srcFilePath, dstFilePath)
-                    }
-                } else {
-                    rmSync(dstFilePath, { recursive: true, force: true })
-                    copyFileSync(srcFilePath, dstFilePath)
-                }
+    private static getCurrentVersion(): string {
+        try {
+            const packageJsonPath = join(__dirname, "../package.json")
+            const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"))
+            return Updater.cleanVersion(String(packageJson.version || "0.0.0"))
+        } catch {
+            try {
+                return Updater.cleanVersion(readFileSync(join(__dirname, "../VERSION"), "utf-8"))
+            } catch {
+                return "0.0.0"
             }
         }
+    }
 
-        for (const file of needsDelete) {
-            if (needsIgnore.has(file)) continue
+    private static cleanVersion(version: string): string {
+        return version.trim().replace(/^v/i, "").replace(/[^\d.].*$/, "")
+    }
 
-            rmSync(file, { recursive: true, force: true })
+    private static compareVersions(a: string, b: string): number {
+        const left = Updater.toVersionParts(a)
+        const right = Updater.toVersionParts(b)
+        const max = Math.max(left.length, right.length)
+
+        for (let i = 0; i < max; i++) {
+            const diff = (left[i] || 0) - (right[i] || 0)
+            if (diff !== 0) return diff
         }
+
+        return 0
+    }
+
+    private static toVersionParts(version: string): number[] {
+        return Updater.cleanVersion(version)
+            .split(".")
+            .map((part) => Number(part))
+            .map((part) => Number.isFinite(part) ? part : 0)
     }
 }

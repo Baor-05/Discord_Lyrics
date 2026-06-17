@@ -7,6 +7,7 @@ import { SpotifyService } from "../SpotifyService"
 import { Debug } from "../Debug"
 import { WindowsMediaService } from "../WindowsMediaService"
 import { YouTubeMusicWebService } from "../YouTubeMusicWebService"
+import { Updater } from "../Updater"
 
 const clients: Set<import("ws").WebSocket> = new Set()
 
@@ -58,6 +59,35 @@ export function startServer(): void {
     app.post("/api/ytmusic-web/playback", (req, res) => {
         const accepted = YouTubeMusicWebService.update(req.body)
         res.sendStatus(accepted ? 204 : 400)
+    })
+
+    app.get("/api/update/check", async (req, res) => {
+        try {
+            res.json(await Updater.checkLatest())
+        } catch (e) {
+            Debug.write("Update check failed: " + (e as Error).stack)
+            res.status(500).json({
+                hasUpdate: false,
+                message: "Không kiểm tra được cập nhật. Hãy kiểm tra mạng hoặc GitHub Releases."
+            })
+        }
+    })
+
+    app.post("/api/update/install", async (req, res) => {
+        try {
+            const result = await Updater.downloadAndRunLatest()
+            res.json(result)
+
+            if (result.hasUpdate) {
+                setTimeout(() => process.exit(0), 1000)
+            }
+        } catch (e) {
+            Debug.write("Update install failed: " + (e as Error).stack)
+            res.status(500).json({
+                hasUpdate: false,
+                message: "Không tải hoặc mở được trình cài đặt bản mới."
+            })
+        }
     })
 
     app.get("/callback", async (req, res) => {

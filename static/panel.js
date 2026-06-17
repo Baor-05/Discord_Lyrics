@@ -157,6 +157,26 @@ $(
                     <i></i>
                 </label>
             </section>
+
+            <section class="settings-block update-block">
+                <div class="block-title compact">
+                    <span class="channel-mark"></span>
+                    <h2>Cập nhật app</h2>
+                </div>
+                <label class="switch-row" for="enable-autoupdate">
+                    <span>
+                        <strong>Tự kiểm tra cập nhật</strong>
+                        <small>Khi có bản mới trên GitHub Releases, app sẽ mở DiscordLyricsSetup.exe.</small>
+                    </span>
+                    <input type="checkbox" id="enable-autoupdate">
+                    <i></i>
+                </label>
+                <div class="update-actions">
+                    <button id="check-update" class="button primary" type="button">Kiểm tra cập nhật</button>
+                    <button id="install-update" class="button ghost hidden" type="button">Cài bản mới</button>
+                </div>
+                <p id="update-status" class="update-status">Chưa kiểm tra cập nhật.</p>
+            </section>
         </section>
     </aside>
 
@@ -585,6 +605,12 @@ $(
         background: linear-gradient(180deg, #6772ff, #4f5be8);
     }
 
+    .button.ghost {
+        color: #dfe4ee;
+        background: rgba(255, 255, 255, .1);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12);
+    }
+
     .button:hover {
         filter: brightness(1.08);
     }
@@ -751,6 +777,21 @@ $(
 
     .hidden {
         display: none;
+    }
+
+    .update-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 10px;
+        margin-top: 8px;
+    }
+
+    .update-status {
+        margin: 10px 0 0;
+        color: var(--discord-muted);
+        font-size: 13px;
+        line-height: 1.45;
+        user-select: text;
     }
 
     #spotify-panel {
@@ -1641,6 +1682,10 @@ const enableYtMusicApi = $("#enable-ytmusic-api")
 const enableYtMusicWeb = $("#enable-ytmusic-web")
 const ytMusicApiHost = $("#ytmusic-api-host")
 const ytMusicApiPort = $("#ytmusic-api-port")
+const enableAutoupdate = $("#enable-autoupdate")
+const checkUpdateButton = $("#check-update")
+const installUpdateButton = $("#install-update")
+const updateStatus = $("#update-status")
 const terminalOutput = $("#terminal-output")
 const tokenState = $("#token-state")
 const songTitle = $("#song-title")
@@ -1734,6 +1779,7 @@ let lastRenderedSong = ""
 let lastRenderedSongLyricsCount = -1
 let lastRenderedSource = ""
 let lastActiveLineTime = -1
+let latestUpdateInfo = null
 
 userTokenInput.on("change", () => {
     settings.credentials.token = userTokenInput.val().replace(/"/g, "")
@@ -1867,6 +1913,20 @@ ytMusicApiPort.on("input", () => {
     saveSettings()
 })
 
+enableAutoupdate.on("click", () => {
+    settings.update = settings.update || {}
+    settings.update.enableAutoupdate = enableAutoupdate.prop("checked")
+    saveSettings()
+})
+
+checkUpdateButton.on("click", () => {
+    checkForUpdate()
+})
+
+installUpdateButton.on("click", () => {
+    installLatestUpdate()
+})
+
 
 function formatSeconds(seconds) {
     seconds = Number(seconds)
@@ -1902,6 +1962,43 @@ async function checkToken(token) {
         return response.ok
     } catch {
         return false
+    }
+}
+
+async function checkForUpdate() {
+    checkUpdateButton.text("Đang kiểm tra...")
+    installUpdateButton.addClass("hidden")
+    updateStatus.text("Đang kiểm tra GitHub Releases...")
+
+    try {
+        const response = await fetch("/api/update/check")
+        const data = await response.json()
+        latestUpdateInfo = data
+        updateStatus.text(data.message || "Đã kiểm tra cập nhật.")
+        installUpdateButton.toggleClass("hidden", !data.hasUpdate)
+    } catch {
+        latestUpdateInfo = null
+        updateStatus.text("Không kiểm tra được cập nhật. Hãy kiểm tra mạng hoặc thử lại sau.")
+        installUpdateButton.addClass("hidden")
+    } finally {
+        checkUpdateButton.text("Kiểm tra cập nhật")
+    }
+}
+
+async function installLatestUpdate() {
+    installUpdateButton.text("Đang tải...")
+    updateStatus.text("Đang tải bản mới. Không tắt app trong lúc tải.")
+
+    try {
+        const response = await fetch("/api/update/install", { method: "POST" })
+        const data = await response.json()
+        latestUpdateInfo = data
+        updateStatus.text(data.message || "Đã mở trình cài đặt bản mới.")
+        installUpdateButton.addClass("hidden")
+    } catch {
+        updateStatus.text("Không tải hoặc mở được trình cài đặt bản mới.")
+    } finally {
+        installUpdateButton.text("Cài bản mới")
     }
 }
 
@@ -1962,6 +2059,7 @@ function loadSettings(settingsToLoad) {
     enableYtMusicWeb.prop("checked", settings.view.ytmusicWeb.enabled !== false)
     ytMusicApiHost.val(settings.view.ytmusicApi.host || "127.0.0.1")
     ytMusicApiPort.val(settings.view.ytmusicApi.port || 26538)
+    enableAutoupdate.prop("checked", Boolean(settings.update && settings.update.enableAutoupdate))
     setTokenState(settings.credentials.token ? "Token đã nhập" : "Chưa kiểm tra", "muted")
 
     const activeSource = settings.view.activeSource || "spotify"

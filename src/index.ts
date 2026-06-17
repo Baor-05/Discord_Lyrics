@@ -20,7 +20,11 @@ Settings.load()
 
 if (Settings.update.enableAutoupdate) {
     Updater.tryUpdate()
-        .then(() => {
+        .then((startedInstaller) => {
+            if (startedInstaller) {
+                process.exit(0)
+            }
+
             init()
         })
         .catch((e) => {
