@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="820" viewBox="0 0 1280 820">
+  <defs>
+    <linearGradient id="mainBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#141827"/>
+      <stop offset="0.55" stop-color="#111827"/>
+      <stop offset="1" stop-color="#07110c"/>
+    </linearGradient>
+    <linearGradient id="popupBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#183b22"/>
+      <stop offset="0.55" stop-color="#111c15"/>
+      <stop offset="1" stop-color="#080b09"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#000000" flood-opacity="0.42"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="820" fill="#07080c"/>
+
+  <text x="48" y="52" fill="#f6f6f6" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="800">
+    Preview bố cục nút điều khiển
+  </text>
+  <text x="48" y="82" fill="#9aa3ad" font-family="Segoe UI, Arial, sans-serif" font-size="16">
+    Nút đặt gần thanh thời gian, đổi màu theo Spotify / YouTube Music, layout nhỏ nhất giống Spotify mini-player.
+  </text>
+
+  <!-- Main panel -->
+  <g transform="translate(48 118)" filter="url(#softShadow)">
+    <rect width="760" height="430" rx="30" fill="url(#mainBg)" stroke="#30364a" stroke-width="2"/>
+    <text x="34" y="46" fill="#a7b0b8" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800">TRANG CHÍNH</text>
+    <text x="34" y="104" fill="#a6acb5" font-family="Segoe UI, Arial, sans-serif" font-size="40" font-weight="900">Em thích một kẻ phóng khoáng,</text>
+    <text x="34" y="154" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="42" font-weight="950">Một người cho em không gian riêng</text>
+    <text x="34" y="204" fill="#676d78" font-family="Segoe UI, Arial, sans-serif" font-size="36" font-weight="900">nhưng luôn biết là em cần gì</text>
+
+    <g transform="translate(34 250)">
+      <rect width="68" height="44" rx="22" fill="#0d1118" stroke="#2d3442"/>
+      <text x="18" y="29" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800">1:01</text>
+      <rect x="86" width="204" height="44" rx="22" fill="#0d1118" stroke="#2d3442"/>
+      <text x="105" y="29" fill="#e7ecef" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800">Nguồn lyric: LrcLib</text>
+    </g>
+
+    <g transform="translate(34 322)">
+      <rect width="690" height="9" rx="4.5" fill="#444856"/>
+      <rect width="242" height="9" rx="4.5" fill="#1ed760"/>
+      <circle cx="242" cy="4.5" r="8" fill="#1ed760"/>
+    </g>
+
+    <g transform="translate(210 354)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <g transform="translate(0 0)" fill="#b7bac2">
+        <path d="M18 13v38l30-19z"/>
+        <rect x="10" y="13" width="5" height="38" rx="2.5"/>
+      </g>
+      <g transform="translate(78 0)" stroke="#d6d8df" stroke-width="4">
+        <path d="M42 16 22 32l20 16"/>
+        <path d="M24 16 4 32l20 16"/>
+      </g>
+      <g transform="translate(170 -8)">
+        <circle cx="40" cy="40" r="38" fill="#ffffff"/>
+        <rect x="28" y="21" width="8" height="38" rx="4" fill="#050505"/>
+        <rect x="44" y="21" width="8" height="38" rx="4" fill="#050505"/>
+      </g>
+      <g transform="translate(276 0)" stroke="#d6d8df" stroke-width="4">
+        <path d="M4 16 24 32 4 48"/>
+        <path d="M22 16 42 32 22 48"/>
+      </g>
+      <g transform="translate(370 0)" fill="#b7bac2">
+        <path d="M10 13v38l30-19z"/>
+        <rect x="45" y="13" width="5" height="38" rx="2.5"/>
+      </g>
+    </g>
+    <text x="268" y="418" fill="#7f8792" font-family="Segoe UI, Arial, sans-serif" font-size="14">Controls nằm ngay dưới thanh thời gian</text>
+  </g>
+
+  <!-- Popup lyric -->
+  <g transform="translate(850 118)" filter="url(#softShadow)">
+    <rect width="370" height="430" rx="28" fill="url(#popupBg)" stroke="#25462f" stroke-width="2"/>
+    <rect x="28" y="28" width="70" height="70" rx="18" fill="#1c472b"/>
+    <circle cx="63" cy="63" r="22" fill="#1ed760"/>
+    <path d="M47 58c14-8 34-6 47 1M51 68c12-6 27-5 39 1M56 78c8-4 20-3 28 1" fill="none" stroke="#063d1b" stroke-width="4" stroke-linecap="round"/>
+    <text x="116" y="56" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="900">Cho Anh Một Chút Hy...</text>
+    <text x="116" y="84" fill="#a8b6ad" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">Haukong</text>
+
+    <g transform="translate(112 112)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <g fill="#cdd2d6">
+        <path d="M8 10v26l20-13z"/>
+        <rect x="2" y="10" width="4" height="26" rx="2"/>
+      </g>
+      <g transform="translate(70 -7)">
+        <circle cx="30" cy="30" r="30" fill="#ffffff"/>
+        <path d="M24 16v28l22-14z" fill="#050505"/>
+      </g>
+      <g transform="translate(162 0)" fill="#cdd2d6">
+        <path d="M2 10v26l20-13z"/>
+        <rect x="26" y="10" width="4" height="26" rx="2"/>
+      </g>
+    </g>
+
+    <rect x="28" y="170" width="314" height="190" rx="24" fill="#0c140f" opacity="0.72" stroke="#2d4936"/>
+    <text x="50" y="202" fill="#a7b0b8" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="800">LỜI BÀI HÁT</text>
+    <text x="50" y="246" fill="#88958d" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="900">Cho anh một chút hy</text>
+    <text x="50" y="286" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="950">vọng được không yah</text>
+    <text x="50" y="326" fill="#88958d" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="900">Giống như anh thường...</text>
+    <rect x="50" y="378" width="292" height="7" rx="3.5" fill="#405044"/>
+    <rect x="50" y="378" width="70" height="7" rx="3.5" fill="#1ed760"/>
+    <text x="64" y="414" fill="#7f8792" font-family="Segoe UI, Arial, sans-serif" font-size="13">Controls dưới tên bài, lyric ở dưới</text>
+  </g>
+
+  <!-- Mini popup -->
+  <g transform="translate(160 610)" filter="url(#softShadow)">
+    <rect width="520" height="92" rx="22" fill="#050505" stroke="#2f3338" stroke-width="2"/>
+    <rect x="18" y="18" width="56" height="56" rx="14" fill="#2a2e35"/>
+    <circle cx="46" cy="46" r="23" fill="#47613f"/>
+    <text x="92" y="42" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="900">Cho Anh Một Chút Hy V...</text>
+    <text x="92" y="66" fill="#a8aeb6" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Haukong, Flymingo</text>
+    <circle cx="398" cy="46" r="28" fill="#ffffff"/>
+    <rect x="389" y="30" width="7" height="32" rx="3.5" fill="#050505"/>
+    <rect x="402" y="30" width="7" height="32" rx="3.5" fill="#050505"/>
+    <path d="M458 29v34l27-17z" fill="#cfd2d6"/>
+    <rect x="489" y="29" width="5" height="34" rx="2.5" fill="#cfd2d6"/>
+  </g>
+  <text x="160" y="736" fill="#9aa3ad" font-family="Segoe UI, Arial, sans-serif" font-size="15">
+    Mode nhỏ nhất: chỉ giữ play/pause và next để không chật.
+  </text>
+
+  <!-- Theme note -->
+  <g transform="translate(790 642)">
+    <rect width="390" height="70" rx="18" fill="#111318" stroke="#292d33"/>
+    <circle cx="34" cy="35" r="10" fill="#1ed760"/>
+    <text x="54" y="31" fill="#d8dde2" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="800">Spotify: active xanh</text>
+    <circle cx="222" cy="35" r="10" fill="#ff0033"/>
+    <text x="242" y="31" fill="#d8dde2" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="800">YouTube Music: active đỏ</text>
+    <text x="54" y="56" fill="#8f98a3" font-family="Segoe UI, Arial, sans-serif" font-size="13">Icon chung, theme đổi theo nguồn đang chọn.</text>
+  </g>
+</svg>

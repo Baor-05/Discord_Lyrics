@@ -16,6 +16,8 @@ export class PlaybackState {
     public lyricsLoading: boolean
 
     public isPlaying: boolean
+    public isShuffleActive: boolean | null
+    public repeatState: string | null
     public errorMessage: string
     public rateLimitResetTime: number
     public rateLimitDuration: number
@@ -36,6 +38,8 @@ export class PlaybackState {
         this.lyricsLoading = false
 
         this.isPlaying = false
+        this.isShuffleActive = null
+        this.repeatState = null
         this.errorMessage = ""
         this.rateLimitResetTime = 0
         this.rateLimitDuration = 0

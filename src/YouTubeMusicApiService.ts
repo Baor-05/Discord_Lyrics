@@ -59,6 +59,8 @@ export class YouTubeMusicApiService {
     private static readonly authCooldownMs = 60000
     private static authPromise: Promise<string | null> | null = null
     private static nextAuthAttemptAt = 0
+    private static lastElapsedSeconds = -1
+    private static lastIncrementTime = 0
 
     public static async readPlayback(): Promise<YouTubeMusicApiPlayback> {
         const api = getApiSettings()
@@ -83,13 +85,28 @@ export class YouTubeMusicApiService {
         const song = await response.json() as YouTubeMusicApiSong
         if (!song || !song.title) return { hasSession: false }
 
+        const elapsedSeconds = song.elapsedSeconds || 0
+        const now = Date.now()
+        if (elapsedSeconds !== this.lastElapsedSeconds) {
+            this.lastElapsedSeconds = elapsedSeconds
+            this.lastIncrementTime = now
+        }
+
+        let positionMs = elapsedSeconds * 1000
+        if (song.isPaused !== true && this.lastIncrementTime > 0) {
+            const drift = now - this.lastIncrementTime
+            if (drift < 1500) {
+                positionMs += drift
+            }
+        }
+
         return {
             hasSession: true,
             title: song.title,
             artist: song.artist || "",
             videoId: song.videoId || `${song.title}:${song.artist || ""}`,
             isPlaying: song.isPaused !== true,
-            positionMs: Math.max(0, Math.round((song.elapsedSeconds || 0) * 1000)),
+            positionMs: Math.max(0, Math.round(positionMs)),
             durationMs: Math.max(0, Math.round((song.songDuration || 0) * 1000))
         }
     }
@@ -140,6 +157,45 @@ export class YouTubeMusicApiService {
         this.saveAccessToken(accessToken)
 
         return accessToken
+    }
+
+    public static async sendCommand(command: string, data?: any): Promise<boolean> {
+        const api = getApiSettings()
+        if (!api.enabled) return false
+
+        try {
+            let token = api.accessToken
+            let response = await this.executeCommandRequest(token, command, data)
+
+            if (response.status === 401 || response.status === 403) {
+                if (api.accessToken) this.saveAccessToken("")
+
+                token = await this.authorizeWithCooldown() || ""
+                if (!token) return false
+
+                response = await this.executeCommandRequest(token, command, data)
+            }
+
+            return response.ok
+        } catch (e) {
+            return false
+        }
+    }
+
+    private static executeCommandRequest(accessToken: string, command: string, data?: any): Promise<Response> {
+        const headers: Record<string, string> = {
+            "Content-Type": "application/json"
+        }
+        if (accessToken) headers.Authorization = `Bearer ${accessToken}`
+
+        const body: Record<string, any> = { command }
+        if (data !== undefined) body.data = data
+
+        return requestWithTimeout(`${getBaseUrl()}/api/v1/command`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(body)
+        })
     }
 
     private static saveAccessToken(accessToken: string): void {

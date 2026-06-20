@@ -15,6 +15,18 @@ export class YouTubeMusicWebService {
     private static readonly maxAgeMs = 5000
     private static lastPayload: YouTubeMusicWebPayload | null = null
     private static lastUpdatedAt = 0
+    private static pendingCommand: { command: string; data?: any } | null = null
+
+    public static enqueueCommand(command: string, data?: any): void {
+        this.pendingCommand = { command, data }
+    }
+
+    public static dequeueCommand(): { command: string; data?: any } | null {
+        const cmd = this.pendingCommand
+        this.pendingCommand = null
+        return cmd
+    }
+
 
     public static update(payload: YouTubeMusicWebPayload): boolean {
         if (!this.isValidPayload(payload)) return false
@@ -39,13 +51,14 @@ export class YouTubeMusicWebService {
             return { hasSession: false }
         }
 
+        const elapsed = Date.now() - this.lastUpdatedAt
         return {
             hasSession: true,
             title: this.lastPayload.title,
             artist: this.lastPayload.artist || "",
             videoId: this.lastPayload.videoId,
             isPlaying: this.lastPayload.isPlaying === true,
-            positionMs: this.lastPayload.positionMs || 0,
+            positionMs: (this.lastPayload.positionMs || 0) + (this.lastPayload.isPlaying === true ? elapsed : 0),
             durationMs: this.lastPayload.durationMs || 0
         }
     }

@@ -33,6 +33,9 @@ interface PlaybackResponse {
     progress_ms: number
 
     is_playing: boolean
+
+    shuffle_state?: boolean
+    repeat_state?: string
 }
 
 export class PlaybackStateUpdater {
@@ -43,6 +46,7 @@ export class PlaybackStateUpdater {
     private lastApiProgress: number
     private lastApiUpdateTime: number
     private lastActiveSource: string
+    private isUpdating: boolean
 
     constructor(playbackState: PlaybackState, lyricsFetcher: LyricsFetcher) {
         this.playbackState = playbackState
@@ -52,105 +56,107 @@ export class PlaybackStateUpdater {
         this.lastApiProgress = 0
         this.lastApiUpdateTime = 0
         this.lastActiveSource = (Settings.view as any).activeSource || "spotify"
+        this.isUpdating = false
     }
 
     public async update(): Promise<void> {
-        const roundTripTimeStart = Date.now()
-        const activeSource = (Settings.view as any).activeSource || "spotify"
-        if (this.lastActiveSource !== activeSource) {
-            this.lastActiveSource = activeSource
-            const sourceName = activeSource === "ytmusic" ? "YouTube Music" : "Spotify/SpotX"
-            this.clearPlayback(`Waiting for ${sourceName} playback`)
-        }
+        if (this.isUpdating) return
+        this.isUpdating = true
 
-        if (activeSource === "ytmusic") {
-            await this.updateFromYouTubeMusic()
-            return
-        }
-
-        if (this.useWindowsMediaOnly || (!Settings.credentials.refreshToken && !Settings.credentials.useExternalAuthServer)) {
-            await this.updateFromWindowsMedia("Spotify API is not configured", "spotify")
-            return
-        }
-
-        let request = await this.requestPlayback()
-
-        if (request.status === 401 || request.status === 400) {
-            if (Settings.credentials.useExternalAuthServer) {
-                SpotifyService.token = await ExternalAuthServerAPI.getToken() || ""
-            } else {
-                await SpotifyService.refresh()
+        try {
+            const roundTripTimeStart = Date.now()
+            const activeSource = (Settings.view as any).activeSource || "spotify"
+            if (this.lastActiveSource !== activeSource) {
+                this.lastActiveSource = activeSource
+                const sourceName = activeSource === "ytmusic" ? "YouTube Music" : "Spotify/SpotX"
+                this.clearPlayback(`Waiting for ${sourceName} playback`)
             }
 
-            request = await this.requestPlayback()
-        }
-
-        if (request.status === 204) {
-            await this.updateFromWindowsMedia("Spotify API has no active playback", "spotify")
-            return
-        }
-
-        if (request.status === 200) {
-            this.playbackState.errorMessage = ""
-            const json = await request.json() as PlaybackResponse
-            if (!json.item) {
-                this.clearPlayback("Spotify is not playing on an active device")
+            if (activeSource === "ytmusic") {
+                await this.updateFromYouTubeMusic()
                 return
             }
 
-            const playbackState = this.playbackState
-            const newProgress = json.progress_ms + (Date.now() - roundTripTimeStart)
-            const isPlayingChanged = playbackState.isPlaying !== json.is_playing
-            const songIdChanged = playbackState.songId !== json.item.id
+            if (this.useWindowsMediaOnly || (!Settings.credentials.refreshToken && !Settings.credentials.useExternalAuthServer)) {
+                await this.updateFromWindowsMedia("Spotify API is not configured", "spotify")
+                return
+            }
 
-            playbackState.isPlaying = json.is_playing
+            let request = await this.requestPlayback()
 
-            if (songIdChanged) {
-                playbackState.songName = json.item.name.replace(/ \(.+\)/, "").normalize("NFC").trim()
-                playbackState.songAuthor = (json.item.artists[0]?.name || "").normalize("NFC").trim()
+            if (request.status === 401 || request.status === 400) {
+                if (Settings.credentials.useExternalAuthServer) {
+                    SpotifyService.token = await ExternalAuthServerAPI.getToken() || ""
+                } else {
+                    await SpotifyService.refresh()
+                }
 
-                playbackState.oldSongId = playbackState.songId
-                playbackState.songId = json.item.id
+                request = await this.requestPlayback()
+            }
 
-                playbackState.songDuration = json.item.duration_ms
-                playbackState.songProgress = newProgress
-                
-                this.lastApiProgress = json.progress_ms
-                this.lastApiUpdateTime = Date.now()
+            if (request.status === 204) {
+                await this.updateFromWindowsMedia("Spotify API has no active playback", "spotify")
+                return
+            }
 
-                await this.loadLyricsForCurrentSong()
-            } else {
-                if (isPlayingChanged || !json.is_playing) {
+            if (request.status === 200) {
+                this.playbackState.errorMessage = ""
+                const json = await request.json() as PlaybackResponse
+                if (!json.item) {
+                    this.clearPlayback("Spotify is not playing on an active device")
+                    return
+                }
+
+                const playbackState = this.playbackState
+                const newProgress = json.progress_ms + (Date.now() - roundTripTimeStart)
+                const songIdChanged = playbackState.songId !== json.item.id
+                const isPlayingChanged = playbackState.isPlaying !== json.is_playing
+
+                playbackState.isPlaying = json.is_playing
+                playbackState.isShuffleActive = json.shuffle_state ?? null
+                playbackState.repeatState = json.repeat_state ?? null
+
+                if (songIdChanged) {
+                    playbackState.songName = json.item.name.replace(/ \(.+\)/, "").normalize("NFC").trim()
+                    playbackState.songAuthor = (json.item.artists[0]?.name || "").normalize("NFC").trim()
+
+                    playbackState.oldSongId = playbackState.songId
+                    playbackState.songId = json.item.id
+
+                    playbackState.songDuration = json.item.duration_ms
                     playbackState.songProgress = newProgress
+                    
                     this.lastApiProgress = json.progress_ms
                     this.lastApiUpdateTime = Date.now()
+
+                    await this.loadLyricsForCurrentSong()
                 } else {
-                    const timeElapsed = Date.now() - this.lastApiUpdateTime
-                    const isSeekBackward = json.progress_ms < this.lastApiProgress - 1500
-                    const isSeekForward = json.progress_ms > this.lastApiProgress + timeElapsed + 2000
-
-                    if (isSeekBackward || isSeekForward) {
+                    playbackState.songDuration = json.item.duration_ms
+                    const progressDiff = Math.abs(newProgress - playbackState.songProgress)
+                    if (isPlayingChanged || !playbackState.isPlaying || progressDiff > 2000) {
                         playbackState.songProgress = newProgress
-                        this.lastApiProgress = json.progress_ms
-                        this.lastApiUpdateTime = Date.now()
                     }
+                    this.lastApiProgress = newProgress
+                    this.lastApiUpdateTime = Date.now()
+                }
+                if (this.lyricsFetcher.lastFetchedFor !== (playbackState.songName + playbackState.songAuthor)) {
+                    // If song switches, and we didn't get lyrics of previous song yet, wrong lyrics may set. Check for wrong lyrics and set correct lyrics
+                    await this.loadLyricsForCurrentSong()
+                }
+            } else {
+                const errorText = await request.text().catch(() => "")
+                this.playbackState.errorMessage = `Spotify API HTTP ${request.status}${errorText ? ": " + errorText : ""}`
+
+                if (request.status === 401 || request.status === 403) {
+                    if (errorText.includes("Active premium subscription required")) {
+                        this.useWindowsMediaOnly = true
+                    }
+
+                    await this.updateFromWindowsMedia(this.playbackState.errorMessage, "spotify")
                 }
             }
-            if (this.lyricsFetcher.lastFetchedFor !== (playbackState.songName + playbackState.songAuthor)) {
-                // If song switches, and we didn't get lyrics of previous song yet, wrong lyrics may set. Check for wrong lyrics and set correct lyrics
-                await this.loadLyricsForCurrentSong()
-            }
-        } else {
-            const errorText = await request.text().catch(() => "")
-            this.playbackState.errorMessage = `Spotify API HTTP ${request.status}${errorText ? ": " + errorText : ""}`
-
-            if (request.status === 401 || request.status === 403) {
-                if (errorText.includes("Active premium subscription required")) {
-                    this.useWindowsMediaOnly = true
-                }
-
-                await this.updateFromWindowsMedia(this.playbackState.errorMessage, "spotify")
-            }
+        } finally {
+            this.isUpdating = false
         }
     }
 
@@ -173,6 +179,8 @@ export class PlaybackStateUpdater {
         this.playbackState.oldSongId = this.playbackState.songId
         this.playbackState.songId = ""
         this.playbackState.isPlaying = false
+        this.playbackState.isShuffleActive = null
+        this.playbackState.repeatState = null
         this.playbackState.songProgress = 0
         this.playbackState.songDuration = 0
         this.playbackState.lyrics = null
@@ -226,12 +234,17 @@ export class PlaybackStateUpdater {
 
         const playbackState = this.playbackState
         const songId = `${media.sourceAppUserModelId || "windows"}:${media.title}:${media.artist || ""}`
-        const newProgress = media.positionMs || 0
+        let newProgress = media.positionMs || 0
+        if (targetSource === "ytmusic") {
+            newProgress += 400
+        }
         const isPlaying = media.playbackStatus === "Playing"
-        const isPlayingChanged = playbackState.isPlaying !== isPlaying
         const songIdChanged = playbackState.songId !== songId
+        const isPlayingChanged = playbackState.isPlaying !== isPlaying
 
         playbackState.isPlaying = isPlaying
+        playbackState.isShuffleActive = media.isShuffleActive ?? null
+        playbackState.repeatState = media.repeatState ?? null
         playbackState.errorMessage = `Using Windows media fallback (${media.playbackStatus || "Unknown"}). Reason: ${reason}`
 
         if (songIdChanged) {
@@ -248,23 +261,13 @@ export class PlaybackStateUpdater {
 
             await this.loadLyricsForCurrentSong()
         } else {
-            if (isPlayingChanged || !isPlaying) {
-                playbackState.songDuration = media.endTimeMs || 0
+            playbackState.songDuration = media.endTimeMs || 0
+            const progressDiff = Math.abs(newProgress - playbackState.songProgress)
+            if (isPlayingChanged || !playbackState.isPlaying || progressDiff > 2000) {
                 playbackState.songProgress = newProgress
-                this.lastApiProgress = newProgress
-                this.lastApiUpdateTime = Date.now()
-            } else {
-                const timeElapsed = Date.now() - this.lastApiUpdateTime
-                const isSeekBackward = newProgress < this.lastApiProgress - 1500
-                const isSeekForward = newProgress > this.lastApiProgress + timeElapsed + 2000
-
-                if (isSeekBackward || isSeekForward) {
-                    playbackState.songDuration = media.endTimeMs || 0
-                    playbackState.songProgress = newProgress
-                    this.lastApiProgress = newProgress
-                    this.lastApiUpdateTime = Date.now()
-                }
             }
+            this.lastApiProgress = newProgress
+            this.lastApiUpdateTime = Date.now()
         }
     }
 
@@ -309,10 +312,13 @@ export class PlaybackStateUpdater {
     private async applyExternalPlayback(playback: YouTubeMusicApiPlayback, sourcePrefix: string, sourceLabel: string): Promise<void> {
         const playbackState = this.playbackState
         const songId = `${sourcePrefix}:${playback.videoId || playback.title}:${playback.artist || ""}`
-        const newProgress = playback.positionMs || 0
+        let newProgress = playback.positionMs || 0
+        if (sourcePrefix.startsWith("ytmusic")) {
+            newProgress += 400
+        }
         const isPlaying = playback.isPlaying === true
-        const isPlayingChanged = playbackState.isPlaying !== isPlaying
         const songIdChanged = playbackState.songId !== songId
+        const isPlayingChanged = playbackState.isPlaying !== isPlaying
 
         playbackState.isPlaying = isPlaying
         playbackState.errorMessage = `Using ${sourceLabel} (${isPlaying ? "Playing" : "Paused"})`
@@ -333,23 +339,12 @@ export class PlaybackStateUpdater {
             return
         }
 
-        if (isPlayingChanged || !isPlaying) {
-            playbackState.songDuration = playback.durationMs || 0
+        playbackState.songDuration = playback.durationMs || 0
+        const progressDiff = Math.abs(newProgress - playbackState.songProgress)
+        if (isPlayingChanged || !playbackState.isPlaying || progressDiff > 2000) {
             playbackState.songProgress = newProgress
-            this.lastApiProgress = newProgress
-            this.lastApiUpdateTime = Date.now()
-            return
         }
-
-        const timeElapsed = Date.now() - this.lastApiUpdateTime
-        const isSeekBackward = newProgress < this.lastApiProgress - 1500
-        const isSeekForward = newProgress > this.lastApiProgress + timeElapsed + 2000
-
-        if (isSeekBackward || isSeekForward) {
-            playbackState.songDuration = playback.durationMs || 0
-            playbackState.songProgress = newProgress
-            this.lastApiProgress = newProgress
-            this.lastApiUpdateTime = Date.now()
-        }
+        this.lastApiProgress = newProgress
+        this.lastApiUpdateTime = Date.now()
     }
 }

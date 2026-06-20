@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="180" viewBox="0 0 760 180">
+  <rect width="760" height="180" rx="28" fill="#050505"/>
+  <g transform="translate(70 54)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="translate(0 0)" stroke="#1ed760" stroke-width="4">
+      <path d="M8 28c22 0 26 24 48 24"/>
+      <path d="M44 16l12 12-12 12"/>
+      <path d="M8 52c10 0 17-5 24-12"/>
+      <path d="M44 64l12-12-12-12"/>
+      <circle cx="32" cy="82" r="4" fill="#1ed760" stroke="none"/>
+    </g>
+
+    <g transform="translate(112 2)" fill="#b3b3b3" stroke="none">
+      <path d="M12 18a4 4 0 0 1 6.4-3.2l32 24a4 4 0 0 1 0 6.4l-32 24A4 4 0 0 1 12 66V18z"/>
+      <rect x="4" y="17" width="6" height="50" rx="3"/>
+    </g>
+
+    <g transform="translate(224 -8)" stroke="none">
+      <circle cx="42" cy="42" r="42" fill="#ffffff"/>
+      <rect x="30" y="22" width="9" height="40" rx="4.5" fill="#050505"/>
+      <rect x="46" y="22" width="9" height="40" rx="4.5" fill="#050505"/>
+    </g>
+
+    <g transform="translate(368 2)" fill="#b3b3b3" stroke="none">
+      <path d="M56 18a4 4 0 0 0-6.4-3.2l-32 24a4 4 0 0 0 0 6.4l32 24A4 4 0 0 0 56 66V18z"/>
+      <rect x="58" y="17" width="6" height="50" rx="3"/>
+    </g>
+
+    <g transform="translate(502 0)" stroke="#1ed760" stroke-width="4">
+      <path d="M16 24V14a8 8 0 0 1 8-8h40a8 8 0 0 1 8 8v34a8 8 0 0 1-8 8H50"/>
+      <path d="M50 56l-12 12-12-12"/>
+      <circle cx="44" cy="82" r="4" fill="#1ed760" stroke="none"/>
+    </g>
+  </g>
+  <g fill="#e8e8e8" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">
+    <text x="74" y="154">Shuffle</text>
+    <text x="190" y="154">Previous</text>
+    <text x="303" y="154">Pause / Play</text>
+    <text x="472" y="154">Next</text>
+    <text x="584" y="154">Repeat</text>
+  </g>
+</svg>

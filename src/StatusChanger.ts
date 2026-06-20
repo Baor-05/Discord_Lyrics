@@ -152,8 +152,6 @@ export class StatusChanger {
     }
 
     public changeStatus(): void {
-        if (this.isRequestPending) return
-
         if (Date.now() >= this.rateLimitResetTime) {
             this.playbackState.rateLimitResetTime = 0
             this.playbackState.rateLimitDuration = 0
@@ -167,25 +165,17 @@ export class StatusChanger {
             this.lastSongId = playbackState.songId
         }
 
-        if (!Settings.credentials.token) return
-
-        if (!Settings.view.discordEnabled) {
-            this.clearStatusOnce()
-            return
-        }
-
-        if (playbackState.ended || !playbackState.isPlaying) {
-            this.clearStatusOnce()
-            return
-        }
-
         const lyrics = playbackState.lyrics
+        const canSendDiscordStatus = this.canSendDiscordStatus(playbackState)
 
         if (playbackState.lyricsLoading) return
 
         // 1. If song has no lyrics, handle fallback status
         if (!playbackState.hasLyrics || !lyrics || !lyrics.lines.length || lyrics.lines.every((line) => !line.text.trim())) {
             playbackState.currentLine = null
+
+            if (this.isRequestPending) return
+            if (!canSendDiscordStatus) return
 
             if (Date.now() < this.rateLimitResetTime) return
 
@@ -207,9 +197,38 @@ export class StatusChanger {
             return
         }
 
-        // 2. Find the active line based on song progress and offset
+        // 2. Find the active line based on song progress (no offset for local UI)
         const songProgress = playbackState.songProgress
         const lines = lyrics.lines
+        let localActiveLine: LyricsLine | null = null
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i]
+            const nextLine = lines[i + 1]
+
+            if (line.time < songProgress) {
+                if (nextLine && nextLine.time < songProgress) continue
+                localActiveLine = line
+                break
+            }
+        }
+
+        // 3. Update in-app playback state instantly for smooth sync
+        if (playbackState.currentLine !== localActiveLine) {
+            Debug.write(`Active line changed from ${playbackState.currentLine?.time} to ${localActiveLine?.time} (progress=${songProgress}, text="${localActiveLine?.text.trim()}")`)
+        }
+        playbackState.currentLine = localActiveLine
+
+        // Now, check if we can make Discord requests. If a request is pending, we can't send status to Discord, but we've already updated the local playbackState.currentLine!
+        if (this.isRequestPending) return
+
+        // 4. If we are rate limited, don't make any network calls to Discord
+        if (!canSendDiscordStatus) return
+
+        // 5. If we are rate limited, don't make any network calls to Discord
+        if (Date.now() < this.rateLimitResetTime) return
+
+        // 6. Calculate active line for Discord status using the offset
         const offset = Settings.timings.sendTimeOffset
         let activeLine: LyricsLine | null = null
 
@@ -224,13 +243,7 @@ export class StatusChanger {
             }
         }
 
-        // 3. Update in-app playback state instantly for smooth sync
-        playbackState.currentLine = activeLine
-
-        // 4. If we are rate limited, don't make any network calls to Discord
-        if (Date.now() < this.rateLimitResetTime) return
-
-        // 5. Determine Discord status key and text
+        // 7. Determine Discord status key and text
         if (activeLine) {
             if (!activeLine.text.trim()) {
                 // Instrumental line
@@ -324,6 +337,22 @@ export class StatusChanger {
         }
 
         return status.slice(0, 128);
+    }
+
+    private canSendDiscordStatus(playbackState: PlaybackState): boolean {
+        if (!Settings.credentials.token) return false
+
+        if (!Settings.view.discordEnabled) {
+            this.clearStatusOnce()
+            return false
+        }
+
+        if (playbackState.ended || !playbackState.isPlaying) {
+            this.clearStatusOnce()
+            return false
+        }
+
+        return true
     }
 
     private clearStatusOnce(): void {

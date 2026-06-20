@@ -7,9 +7,11 @@ import { SpotifyService } from "../SpotifyService"
 import { Debug } from "../Debug"
 import { WindowsMediaService } from "../WindowsMediaService"
 import { YouTubeMusicWebService } from "../YouTubeMusicWebService"
+import { YouTubeMusicApiService } from "../YouTubeMusicApiService"
 import { Updater } from "../Updater"
 
 const clients: Set<import("ws").WebSocket> = new Set()
+type PlaybackRefresh = () => void | Promise<void>
 
 function getSettingsPayload(): object {
     return {
@@ -34,7 +36,7 @@ export function broadcastSettings(): void {
     broadcastPanelMessage("settings", getSettingsPayload())
 }
 
-export function startServer(): void {
+export function startServer(refreshPlayback?: PlaybackRefresh): void {
     const app = express()
     const httpServer = createServer(app)
     const wss = new WebSocketServer({
@@ -58,7 +60,110 @@ export function startServer(): void {
 
     app.post("/api/ytmusic-web/playback", (req, res) => {
         const accepted = YouTubeMusicWebService.update(req.body)
-        res.sendStatus(accepted ? 204 : 400)
+        if (accepted) {
+            const pending = YouTubeMusicWebService.dequeueCommand()
+            if (pending) {
+                return res.json({ command: pending.command, data: pending.data })
+            }
+            return res.sendStatus(204)
+        }
+        res.sendStatus(400)
+    })
+
+    app.post("/api/playback/control", async (req, res) => {
+        const allowedActions = new Set(["play", "pause", "playPause", "stop", "next", "previous", "seekBy", "seekTo", "toggleShuffle", "cycleRepeat"])
+        const source = req.body?.source === "ytmusic" ? "ytmusic" : "spotify"
+        const action = String(req.body?.action || "")
+
+        if (!allowedActions.has(action)) {
+            return res.status(400).json({ ok: false, message: "Invalid playback action" })
+        }
+
+        try {
+            if (source === "ytmusic") {
+                let executed = false
+
+                // 1. Try YouTube Music Desktop API
+                const apiSettings = (Settings.view as any).ytmusicApi || {}
+                if (apiSettings.enabled !== false) {
+                    let apiCommand = action
+                    let apiData: any = undefined
+
+                    if (action === "toggleShuffle") {
+                        apiCommand = "shuffle"
+                    } else if (action === "cycleRepeat") {
+                        apiCommand = "repeatMode"
+                        let newMode = 1
+                        try {
+                            const mediaState = await WindowsMediaService.readPlayback("ytmusic")
+                            if (mediaState.hasSession) {
+                                const currentRepeat = mediaState.repeatState || "off"
+                                if (currentRepeat === "track") {
+                                    newMode = 0
+                                } else if (currentRepeat === "context") {
+                                    newMode = 2
+                                } else {
+                                    newMode = 1
+                                }
+                            }
+                        } catch {}
+                        apiData = newMode
+                    } else if (action === "seekTo") {
+                        apiData = Math.round(Number(req.body?.positionMs || 0) / 1000)
+                    }
+
+                    executed = await YouTubeMusicApiService.sendCommand(apiCommand, apiData)
+                }
+
+                // 2. Try YouTube Music Web Extension (enqueuing the command)
+                if (!executed && YouTubeMusicWebService.readPlayback().hasSession) {
+                    YouTubeMusicWebService.enqueueCommand(action, {
+                        positionMs: Number(req.body?.positionMs || 0)
+                    })
+                    executed = true
+                }
+
+                // 3. Fallback to Windows Media Session
+                if (!executed) {
+                    const result = await WindowsMediaService.controlSession(source, action as any, {
+                        deltaMs: Number(req.body?.deltaMs || 0),
+                        positionMs: Number(req.body?.positionMs || 0)
+                    })
+                    executed = result.ok
+                }
+
+                if (executed && refreshPlayback) {
+                    await refreshPlayback()
+                    setTimeout(() => {
+                        Promise.resolve(refreshPlayback()).catch((error) => {
+                            Debug.write("Delayed playback refresh failed: " + (error as Error).stack)
+                        })
+                    }, 250)
+                }
+
+                return res.json({ ok: executed })
+            }
+
+            // Spotify control path remains unchanged
+            const result = await WindowsMediaService.controlSession(source, action as any, {
+                deltaMs: Number(req.body?.deltaMs || 0),
+                positionMs: Number(req.body?.positionMs || 0)
+            })
+
+            if (result.ok && refreshPlayback) {
+                await refreshPlayback()
+                setTimeout(() => {
+                    Promise.resolve(refreshPlayback()).catch((error) => {
+                        Debug.write("Delayed playback refresh failed: " + (error as Error).stack)
+                    })
+                }, 250)
+            }
+
+            res.status(result.ok ? 200 : 404).json(result)
+        } catch (e) {
+            Debug.write("Playback control failed: " + (e as Error).stack)
+            res.status(500).json({ ok: false, message: "Playback control failed" })
+        }
     })
 
     app.get("/api/update/check", async (req, res) => {

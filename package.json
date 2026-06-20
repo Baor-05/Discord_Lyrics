@@ -1,6 +1,6 @@
 {
   "name": "discord-lyrics",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "DiscordLyrics desktop app for Spotify, SpotX, and Discord custom status.",
   "author": "DiscordLyrics",
   "dependencies": {
@@ -77,10 +77,13 @@
     },
     "nsis": {
       "oneClick": false,
+      "perMachine": false,
+      "allowElevation": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "DiscordLyrics",
+      "include": "build/installer.nsh",
       "artifactName": "DiscordLyricsSetup.${ext}",
       "installerIcon": "assets/icon.ico",
       "uninstallerIcon": "assets/icon.ico"

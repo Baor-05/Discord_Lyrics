@@ -185,13 +185,24 @@ $(
             <div class="popup-artwork" aria-hidden="true">
                 <img src="logo_spotify.svg" alt="">
             </div>
-            <div>
+            <div class="track-heading">
                 <p class="kicker">Đang phát</p>
                 <h2 id="song-title">Chưa phát nhạc</h2>
                 <p id="song-artist">Mở Spotify hoặc SpotX để bắt đầu</p>
+                <div class="media-controls media-controls-popup" aria-label="Điều khiển nhạc pop-up">
+                    <button class="media-button" data-media-action="toggleShuffle" title="Trộn bài" type="button"><svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.45 20 9.5V4h-5.5zm.38 10.17l-1.42 1.41 3.17 3.17L14.5 20H20v-5.5l-2.04 2.04-3.08-3.17z"/></svg></button>
+                    <button class="media-button" data-media-action="previous" title="Lùi bài" type="button"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+                    <button class="media-button media-button-play" data-media-action="playPause" title="Phát / tạm dừng" type="button"><svg class="play-symbol" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="pause-symbol" viewBox="0 0 24 24"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg></button>
+                    <button class="media-button" data-media-action="next" title="Qua bài" type="button"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm10-12h2v12h-2z"/></svg></button>
+                    <button class="media-button" data-media-action="cycleRepeat" title="Lặp lại" type="button"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
+                </div>
             </div>
-            <div style="display: flex; gap: 8px; align-items: center;">
+            <div class="topbar-actions">
                 <span id="play-state" class="spotify-state idle">Đang chờ</span>
+                <div class="media-controls-mini" aria-label="Điều khiển nhạc thu nhỏ">
+                    <button class="mini-media-button mini-media-play" data-media-action="playPause" title="Phát / tạm dừng" type="button"><svg class="play-symbol" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="pause-symbol" viewBox="0 0 24 24"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg></button>
+                    <button class="mini-media-button" data-media-action="next" title="Qua bài" type="button"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm10-12h2v12h-2z"/></svg></button>
+                </div>
                 <button id="toggle-mini-player" class="icon-button" title="Thu nhỏ thành pop-up" type="button">
                     <svg class="shrink-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -215,8 +226,15 @@ $(
                     <span id="progress-time">0:00</span>
                     <span id="lyric-source">Nguồn lyric: Chưa lấy</span>
                 </div>
-                <div class="progress-shell" aria-hidden="true">
+                <div class="progress-shell" role="slider" aria-label="Tua bài hát">
                     <span id="progress-fill"></span>
+                </div>
+                <div class="media-controls media-controls-main" aria-label="Điều khiển nhạc">
+                    <button class="media-button" data-media-action="toggleShuffle" title="Trộn bài" type="button"><svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.45 20 9.5V4h-5.5zm.38 10.17l-1.42 1.41 3.17 3.17L14.5 20H20v-5.5l-2.04 2.04-3.08-3.17z"/></svg></button>
+                    <button class="media-button" data-media-action="previous" title="Lùi bài" type="button"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+                    <button class="media-button media-button-play" data-media-action="playPause" title="Phát / tạm dừng" type="button"><svg class="play-symbol" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="pause-symbol" viewBox="0 0 24 24"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg></button>
+                    <button class="media-button" data-media-action="next" title="Qua bài" type="button"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm10-12h2v12h-2z"/></svg></button>
+                    <button class="media-button" data-media-action="cycleRepeat" title="Lặp lại" type="button"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
                 </div>
             </div>
         </section>
@@ -814,6 +832,12 @@ $(
         margin-bottom: 16px;
     }
 
+    .topbar-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
     .spotify-topbar .kicker {
         color: var(--spotify-muted);
     }
@@ -989,6 +1013,133 @@ $(
         border-radius: inherit;
         background: var(--accent-2);
         transition: width .32s ease;
+    }
+
+    .media-controls,
+    .media-controls-mini {
+        -webkit-app-region: no-drag;
+    }
+
+    .media-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .media-controls-main {
+        height: 56px;
+        margin-top: 16px;
+    }
+
+    .media-controls-popup,
+    .media-controls-mini {
+        display: none;
+    }
+
+    .media-button,
+    .mini-media-button {
+        display: grid;
+        place-items: center;
+        border: 0;
+        color: rgba(255, 255, 255, .72);
+        background: transparent;
+        cursor: pointer;
+        transition: color .16s ease, transform .16s ease, opacity .16s ease, background .16s ease;
+        -webkit-app-region: no-drag;
+    }
+
+    .media-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        position: relative;
+    }
+
+    .media-button[data-media-action="toggleShuffle"].active,
+    .media-button[data-media-action="cycleRepeat"].active {
+        color: #1db954 !important;
+    }
+
+    .media-button[data-media-action="toggleShuffle"].active::after,
+    .media-button[data-media-action="cycleRepeat"].active::after {
+        content: "";
+        position: absolute;
+        bottom: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background-color: #1db954;
+    }
+
+    .media-button[data-media-action="cycleRepeat"].repeat-track::before {
+        content: "1";
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        font-size: 8px;
+        font-weight: bold;
+        background: #1db954;
+        color: #000;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+    }
+
+    .media-button:hover,
+    .mini-media-button:hover {
+        color: #fff;
+        transform: scale(1.08);
+    }
+
+    .media-button:active,
+    .mini-media-button:active {
+        transform: scale(.96);
+    }
+
+    .media-button svg {
+        width: 22px;
+        height: 22px;
+        fill: currentColor;
+    }
+
+    .mini-media-button svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+    }
+
+    .media-button-play,
+    .mini-media-play {
+        color: #050505;
+        background: #fff;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, .26);
+    }
+
+    .media-button-play {
+        width: 56px;
+        height: 56px;
+    }
+
+    .media-button-play svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .pause-symbol {
+        display: none;
+    }
+
+    body.playback-playing .play-symbol {
+        display: none;
+    }
+
+    body.playback-playing .pause-symbol {
+        display: block;
     }
 
     .spotify-footer {
@@ -1557,6 +1708,36 @@ $(
         background: #ff0000 !important;
     }
 
+    body.mini-mode .media-controls-main {
+        display: none !important;
+    }
+
+    body.mini-mode .media-controls-popup {
+        display: flex !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        gap: 7px !important;
+        margin-top: 6px !important;
+    }
+
+    body.mini-mode .media-controls-popup .media-button {
+        width: 26px !important;
+        height: 26px !important;
+        color: rgba(255, 255, 255, .68) !important;
+    }
+
+    body.mini-mode .media-controls-popup .media-button-play {
+        width: 36px !important;
+        height: 36px !important;
+        color: #050505 !important;
+        background: #fff !important;
+    }
+
+    body.mini-mode .media-controls-popup .media-button svg {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
     body.mini-mode *::-webkit-scrollbar {
         display: none !important;
         width: 0 !important;
@@ -1576,19 +1757,50 @@ $(
         }
 
         body.mini-mode .spotify-topbar {
-            grid-template-columns: 38px minmax(0, 1fr) 28px !important;
+            grid-template-columns: 36px minmax(0, 1fr) auto !important;
             gap: 8px !important;
         }
 
+        body.mini-mode .media-controls-popup {
+            display: none !important;
+        }
+
+        body.mini-mode .media-controls-mini {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            gap: 7px !important;
+        }
+
+        body.mini-mode .mini-media-button {
+            width: 26px !important;
+            height: 26px !important;
+            color: rgba(255, 255, 255, .74) !important;
+            padding: 0 !important;
+        }
+
+        body.mini-mode .mini-media-play {
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            color: #050505 !important;
+            background: #fff !important;
+        }
+
+        body.mini-mode .mini-media-button svg {
+            width: 18px !important;
+            height: 18px !important;
+        }
+
         body.mini-mode .popup-artwork {
-            width: 38px !important;
-            height: 38px !important;
+            width: 36px !important;
+            height: 36px !important;
             border-radius: 10px !important;
         }
 
         body.mini-mode .popup-artwork img {
-            width: 24px !important;
-            height: 24px !important;
+            width: 23px !important;
+            height: 23px !important;
         }
 
         body.mini-mode #song-title {
@@ -1604,6 +1816,10 @@ $(
         }
 
         body.mini-mode .lyrics-stage {
+            display: none !important;
+        }
+
+        body.mini-mode .icon-button {
             display: none !important;
         }
 
@@ -1623,19 +1839,19 @@ $(
         }
 
         body.mini-mode .spotify-topbar {
-            grid-template-columns: 34px minmax(0, 1fr) 24px !important;
-            gap: 8px !important;
+            grid-template-columns: 32px minmax(0, 1fr) auto !important;
+            gap: 7px !important;
         }
 
         body.mini-mode .popup-artwork {
-            width: 34px !important;
-            height: 34px !important;
+            width: 32px !important;
+            height: 32px !important;
             border-radius: 9px !important;
         }
 
         body.mini-mode .popup-artwork img {
-            width: 22px !important;
-            height: 22px !important;
+            width: 21px !important;
+            height: 21px !important;
         }
 
         body.mini-mode #song-title {
@@ -1647,9 +1863,19 @@ $(
             display: none !important;
         }
 
+        body.mini-mode .media-controls-popup {
+            display: none !important;
+        }
+
+        body.mini-mode .media-controls-mini {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            gap: 6px !important;
+        }
+
         body.mini-mode .icon-button {
-            width: 24px !important;
-            height: 24px !important;
+            display: none !important;
         }
 
         body.mini-mode #spotify-panel::after {
@@ -1695,6 +1921,7 @@ const progressTime = $("#progress-time")
 const lyricSource = $("#lyric-source")
 const playState = $("#play-state")
 const progressFill = $("#progress-fill")
+const progressShell = $(".progress-shell")
 const statusMini = $("#status-mini")
 
 const spotifyRailDot = $(".rail-dot:has(img[alt='Spotify'])")
@@ -1780,6 +2007,9 @@ let lastRenderedSongLyricsCount = -1
 let lastRenderedSource = ""
 let lastActiveLineTime = -1
 let latestUpdateInfo = null
+let latestPlaybackProgressMs = 0
+let latestPlaybackDurationMs = 0
+let isSeeking = false
 
 userTokenInput.on("change", () => {
     settings.credentials.token = userTokenInput.val().replace(/"/g, "")
@@ -1926,6 +2156,103 @@ checkUpdateButton.on("click", () => {
 installUpdateButton.on("click", () => {
     installLatestUpdate()
 })
+
+$(".media-button, .mini-media-button").on("click", (event) => {
+    event.preventDefault()
+    event.stopPropagation()
+    const action = $(event.currentTarget).attr("data-media-action")
+    sendPlaybackControl(action)
+})
+
+progressShell.on("pointerdown", (event) => {
+    if (!latestPlaybackDurationMs) return
+
+    isSeeking = true
+    $("body").addClass("seeking")
+    updateSeekPreview(event)
+
+    const target = event.currentTarget
+    if (target.setPointerCapture && event.originalEvent && event.originalEvent.pointerId !== undefined) {
+        target.setPointerCapture(event.originalEvent.pointerId)
+    }
+})
+
+progressShell.on("pointermove", (event) => {
+    if (!isSeeking || !latestPlaybackDurationMs) return
+    updateSeekPreview(event)
+})
+
+progressShell.on("pointerup pointercancel", (event) => {
+    if (!isSeeking || !latestPlaybackDurationMs) return
+
+    isSeeking = false
+    $("body").removeClass("seeking")
+    const percent = getProgressPointerPercent(event)
+    const positionMs = Math.round((percent / 100) * latestPlaybackDurationMs)
+    sendPlaybackControl("seekTo", { positionMs })
+})
+
+
+function getControlSource() {
+    return (settings.view.activeSource || "spotify") === "ytmusic" ? "ytmusic" : "spotify"
+}
+
+async function sendPlaybackControl(action, payload = {}) {
+    if (!action) return
+
+    const body = {
+        source: getControlSource(),
+        action,
+        ...payload
+    }
+
+    try {
+        const response = await fetch("/api/playback/control", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        })
+
+        if (!response.ok) {
+            const data = await response.json().catch(() => null)
+            statusMini.text(data && data.message ? data.message : "Không điều khiển được app nhạc")
+        }
+    } catch {
+        statusMini.text("Không gửi được lệnh điều khiển")
+    }
+}
+
+function getProgressPointerPercent(event) {
+    const rect = progressShell[0].getBoundingClientRect()
+    const clientX = event.originalEvent && typeof event.originalEvent.clientX === "number"
+        ? event.originalEvent.clientX
+        : event.clientX
+    const raw = ((clientX - rect.left) / rect.width) * 100
+
+    return Math.max(0, Math.min(100, raw))
+}
+
+function updateSeekPreview(event) {
+    const percent = getProgressPointerPercent(event)
+    const positionMs = Math.round((percent / 100) * latestPlaybackDurationMs)
+
+    progressFill.css("width", `${percent}%`)
+    progressShell.css("--progress-percent", percent)
+    progressTime.text(formatSeconds(positionMs / 1000))
+}
+
+function getPlaybackProgressPercent(playback) {
+    const durationMs = Number(playback.durationMs || 0)
+    const progressMs = Number(playback.progressMs || 0)
+
+    if (durationMs > 0 && progressMs >= 0) {
+        return Math.max(0, Math.min(100, (progressMs / durationMs) * 100))
+    }
+
+    return progressPercent(playback.progress)
+}
 
 
 function formatSeconds(seconds) {
@@ -2124,13 +2451,47 @@ function updatePlayback(playback) {
         discordText = `${timeStr}: Bị cấm gửi status trong ${remainingSec} giây`
     }
 
+    latestPlaybackProgressMs = Number(playback.progressMs || 0)
+    latestPlaybackDurationMs = Number(playback.durationMs || 0)
+    const progressValue = getPlaybackProgressPercent(playback)
+
     songTitle.text(song)
     songArtist.text(artist)
     progressTime.text(progress)
     lyricSource.text(`Nguồn lyric: ${source}`)
-    progressFill.css("width", `${progressPercent(progress)}%`)
+    if (!isSeeking) {
+        progressFill.css("width", `${progressValue}%`)
+        progressShell.css("--progress-percent", progressValue)
+        progressShell.attr("aria-valuemin", 0)
+        progressShell.attr("aria-valuemax", latestPlaybackDurationMs || 0)
+        progressShell.attr("aria-valuenow", latestPlaybackProgressMs || 0)
+    }
     playState.text(isPlaying ? "Đang phát" : "Đang chờ").toggleClass("playing", isPlaying).toggleClass("idle", !isPlaying)
+    $("body").toggleClass("playback-playing", isPlaying)
     statusMini.text(discordText)
+
+    // Update shuffle button active state
+    const shuffleBtn = $(`.media-button[data-media-action="toggleShuffle"]`)
+    if (playback.isShuffleActive) {
+        shuffleBtn.addClass("active")
+        shuffleBtn.attr("title", "Tắt trộn bài")
+    } else {
+        shuffleBtn.removeClass("active")
+        shuffleBtn.attr("title", "Trộn bài")
+    }
+
+    // Update repeat button active state
+    const repeatBtn = $(`.media-button[data-media-action="cycleRepeat"]`)
+    repeatBtn.removeClass("active repeat-track")
+    if (playback.repeatState === "track") {
+        repeatBtn.addClass("active repeat-track")
+        repeatBtn.attr("title", "Tắt lặp lại")
+    } else if (playback.repeatState === "context") {
+        repeatBtn.addClass("active")
+        repeatBtn.attr("title", "Lặp 1 bài")
+    } else {
+        repeatBtn.attr("title", "Lặp lại danh sách phát")
+    }
 
     terminalOutput.text(`
 Bài hát: ${song}

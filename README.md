@@ -1,4 +1,4 @@
-# DiscordLyrics v1.3
+# DiscordLyrics v1.4.0
 
 DiscordLyrics là ứng dụng Windows giúp hiển thị lời bài hát đang phát lên Discord Custom Status. App đọc nhạc từ Spotify, SpotX hoặc YouTube Music thông qua Windows Media Session, lấy lyric từ các nguồn bên ngoài, rồi tự cập nhật trạng thái Discord theo thời gian.
 
@@ -6,7 +6,14 @@ DiscordLyrics là ứng dụng Windows giúp hiển thị lời bài hát đang 
 
 > Lưu ý bảo mật: Discord token là thông tin nhạy cảm. Không chia sẻ token, không commit `settings.json`, không gửi token lên GitHub.
 
-## Tính Năng
+## Tính Năng Mới (v1.4.0)
+
+- **Điều khiển phát nhạc đầy đủ**: Hỗ trợ 5 nút chức năng (Trộn bài, Lùi bài, Phát/Tạm dừng, Tiến bài, Lặp lại) cho cả Spotify và YouTube Music.
+- **Kéo/click thanh thời gian để tua bài**: Tua trực tiếp đến đoạn nhạc mong muốn bằng cách kéo thả hoặc click trên thanh tiến trình.
+- **Tự động lưu kích thước cửa sổ**: Lưu vị trí và kích thước cửa sổ khi đóng app, tự động khôi phục lại khi mở.
+- **Kiểm tra & Tự động cập nhật**: Thêm tính năng Check Update và Auto Update để tự tải và cài bản mới nhất từ GitHub Releases.
+
+## Tính Năng Cơ Bản
 
 - Đọc nhạc từ `Spotify`, `SpotX` hoặc `YouTube Music`.
 - Chọn riêng chế độ Spotify/SpotX hoặc YouTube Music.
@@ -18,7 +25,6 @@ DiscordLyrics là ứng dụng Windows giúp hiển thị lời bài hát đang 
 - Có pop-up nổi kiểu Spotify.
 - Pop-up có thể kéo, resize và luôn nằm trên cùng.
 - Thu nhỏ xuống system tray khi đóng app.
-- Kiểm tra và cài bản cập nhật mới từ GitHub Releases.
 
 ## Cài Đặt
 
@@ -32,7 +38,7 @@ Bạn không cần cài Node.js nếu chỉ muốn dùng app.
 
 1. Mở trang [Releases](https://github.com/Baor-05/Discord_Lyrics/releases).
 2. Tải file `DiscordLyricsSetup.exe` ở bản mới nhất.
-3. Mở `DiscordLyricsSetup.exe` và cài đặt như app Windows bình thường.
+3. Mở `DiscordLyricsSetup.exe` và cài đặt như app Windows bình thường. Installer cài theo user hiện tại, không cần chạy bằng quyền Admin.
 4. Sau khi cài xong, mở `DiscordLyrics`.
 5. Dán Discord token vào ô `Token Discord`.
 6. Bấm `Kiểm tra`.

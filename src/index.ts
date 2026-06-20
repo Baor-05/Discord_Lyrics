@@ -146,6 +146,7 @@ async function init(): Promise<void> {
             author: playbackState.songAuthor || "Chưa phát nhạc",
             progress: statusChanger.formatSeconds(+(playbackState.songProgress / 1000).toFixed(0)),
             progressMs: playbackState.songProgress,
+            durationMs: playbackState.songDuration,
             lyricsLines: playbackState.lyrics ? playbackState.lyrics.lines : [],
             currentLineTime: playbackState.currentLine ? playbackState.currentLine.time : -1,
             lyricsDisplayBase: displayLyrics,
@@ -154,6 +155,8 @@ async function init(): Promise<void> {
             fetchedFrom,
             error: runtimeStatus,
             isPlaying: playbackState.isPlaying,
+            isShuffleActive: playbackState.isShuffleActive,
+            repeatState: playbackState.repeatState,
             terminalText,
             rateLimitResetTime: playbackState.rateLimitResetTime,
             rateLimitDuration: playbackState.rateLimitDuration
@@ -165,7 +168,7 @@ async function init(): Promise<void> {
         now = Date.now()
     }, 1000 / 60)
 
-    startServer()
+    startServer(() => playbackStateUpdater.update())
 }
 
 process.on("uncaughtException", (e) => {

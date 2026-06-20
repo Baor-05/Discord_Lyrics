@@ -6,15 +6,31 @@ import { shutdown } from "./index"
 let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
 let isQuitting = false
-let normalBounds: any = null
+let isRecreating = false
 const appUserModelId = "local.discordlyrics.desktop"
 
 ;(global as any).toggleMiniMode = (enabled: boolean) => {
     if (mainWindow) {
-        const isCurrentlyMini = mainWindow.isAlwaysOnTop()
-        if (!isCurrentlyMini && enabled) {
-            normalBounds = mainWindow.getBounds()
+        try {
+            const bounds = mainWindow.getBounds()
+            const isCurrentlyMini = mainWindow.isAlwaysOnTop()
+            if (isCurrentlyMini) {
+                (Settings.view as any).miniWindowWidth = bounds.width;
+                (Settings.view as any).miniWindowHeight = bounds.height;
+                (Settings.view as any).miniWindowX = bounds.x;
+                (Settings.view as any).miniWindowY = bounds.y;
+            } else {
+                (Settings.view as any).windowWidth = bounds.width;
+                (Settings.view as any).windowHeight = bounds.height;
+                (Settings.view as any).windowX = bounds.x;
+                (Settings.view as any).windowY = bounds.y;
+            }
+            Settings.save()
+        } catch (e) {
+            // Ignore error
         }
+
+        isRecreating = true
         mainWindow.destroy()
         mainWindow = null
     }
@@ -31,11 +47,18 @@ function getIconPath(): string {
 
 function createWindow(): void {
     const isMini = (Settings.view as any).miniMode || false
+
+    // Load saved bounds from Settings
+    const savedWidth = isMini ? (Settings.view as any).miniWindowWidth : (Settings.view as any).windowWidth
+    const savedHeight = isMini ? (Settings.view as any).miniWindowHeight : (Settings.view as any).windowHeight
+    const savedX = isMini ? (Settings.view as any).miniWindowX : (Settings.view as any).windowX
+    const savedY = isMini ? (Settings.view as any).miniWindowY : (Settings.view as any).windowY
+
     mainWindow = new BrowserWindow({
-        width: isMini ? 380 : (normalBounds?.width || 1120),
-        height: isMini ? 360 : (normalBounds?.height || 680),
-        x: isMini ? undefined : normalBounds?.x,
-        y: isMini ? undefined : normalBounds?.y,
+        width: savedWidth || (isMini ? 380 : 1120),
+        height: savedHeight || (isMini ? 360 : 680),
+        x: savedX,
+        y: savedY,
         minWidth: isMini ? 250 : 900,
         minHeight: isMini ? 50 : 560,
         alwaysOnTop: isMini,
@@ -53,6 +76,31 @@ function createWindow(): void {
         }
     })
 
+    const saveBounds = () => {
+        if (!mainWindow) return
+        try {
+            const bounds = mainWindow.getBounds()
+            const isCurrentlyMini = mainWindow.isAlwaysOnTop()
+            if (isCurrentlyMini) {
+                (Settings.view as any).miniWindowWidth = bounds.width;
+                (Settings.view as any).miniWindowHeight = bounds.height;
+                (Settings.view as any).miniWindowX = bounds.x;
+                (Settings.view as any).miniWindowY = bounds.y;
+            } else {
+                (Settings.view as any).windowWidth = bounds.width;
+                (Settings.view as any).windowHeight = bounds.height;
+                (Settings.view as any).windowX = bounds.x;
+                (Settings.view as any).windowY = bounds.y;
+            }
+            Settings.save()
+        } catch (e) {
+            // Ignore error if window is destroyed
+        }
+    }
+
+    mainWindow.on("resize", saveBounds)
+    mainWindow.on("move", saveBounds)
+
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         shell.openExternal(url)
         return { action: "deny" }
@@ -65,7 +113,8 @@ function createWindow(): void {
         mainWindow?.hide()
     })
 
-    const delay = normalBounds ? 0 : 800
+    const delay = isRecreating ? 0 : 800
+    isRecreating = false // Reset recreation flag
     setTimeout(() => {
         mainWindow?.loadURL("http://127.0.0.1:8999")
     }, delay)

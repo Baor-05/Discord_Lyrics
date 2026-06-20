@@ -75,6 +75,48 @@ function collectPlayback() {
   }
 }
 
+function executeCommand(command, data) {
+  const video = document.querySelector("video")
+  if (!video) return
+
+  switch (command) {
+    case "play":
+      video.play().catch(() => {})
+      break
+    case "pause":
+      video.pause().catch(() => {})
+      break
+    case "playPause":
+      if (video.paused) {
+        video.play().catch(() => {})
+      } else {
+        video.pause().catch(() => {})
+      }
+      break
+    case "next":
+      const nextBtn = document.querySelector("ytmusic-player-bar .next-button, button[aria-label*='Next'], button[title*='Next'], #button[title*='Next']")
+      if (nextBtn) nextBtn.click()
+      break
+    case "previous":
+      const prevBtn = document.querySelector("ytmusic-player-bar .previous-button, button[aria-label*='Previous'], button[title*='Previous'], #button[title*='Previous']")
+      if (prevBtn) prevBtn.click()
+      break
+    case "seekTo":
+      if (data && typeof data.positionMs === "number") {
+        video.currentTime = data.positionMs / 1000
+      }
+      break
+    case "toggleShuffle":
+      const shuffleBtn = document.querySelector("ytmusic-player-bar .shuffle, ytmusic-player-bar #shuffle, ytmusic-player-bar tp-yt-paper-icon-button[id='shuffle'], button[aria-label*='Shuffle'], button[title*='Shuffle']")
+      if (shuffleBtn) shuffleBtn.click()
+      break
+    case "cycleRepeat":
+      const repeatBtn = document.querySelector("ytmusic-player-bar .repeat, ytmusic-player-bar #repeat, ytmusic-player-bar tp-yt-paper-icon-button[id='repeat'], button[aria-label*='Repeat'], button[title*='Repeat']")
+      if (repeatBtn) repeatBtn.click()
+      break
+  }
+}
+
 async function postPayload(payload) {
   for (const endpoint of DISCORDLYRICS_ENDPOINTS) {
     try {
@@ -86,7 +128,15 @@ async function postPayload(payload) {
         body: JSON.stringify(payload)
       })
 
-      if (response.ok || response.status === 204) return true
+      if (response.ok) {
+        if (response.status === 200) {
+          const data = await response.json().catch(() => null)
+          if (data && data.command) {
+            executeCommand(data.command, data.data)
+          }
+        }
+        return true
+      }
     } catch {
       // Try next endpoint.
     }
