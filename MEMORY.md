@@ -461,19 +461,48 @@ Get-Process DiscordLyrics -ErrorAction SilentlyContinue
 
 ---
 
-### 2026-06-22 - v1.4.0: Thêm 5 Nút Chức Năng, Auto/Check Update, Lưu Cửa Sổ, Tua Nhạc & Sửa Lỗi YT Music
+### 2026-06-21 - v1.4.0: Window Persistence, Timeline Interpolation & Mini-Player Adjustments
 
 - Agent: Antigravity
 - Skill đã dùng:
   - design-taste-frontend
+  - codebase-design
+- Mục tiêu:
+  - Lưu và khôi phục vị trí (tọa độ) và kích thước (rộng/cao) của cửa sổ Electron khi đóng và mở lại app.
+  - Tự động ẩn nút thu phóng (expand/shrink button) trong các kích thước thu nhỏ (mini mode / hẹp nhất).
+  - Tăng mượt cho tiến trình YouTube Music bằng cách tính toán và bù trừ thời gian trễ (timeline interpolation) trên cả API Desktop và Web Extension.
+- File đã sửa:
+  - [Settings.ts](file:///c:/Users/Bao/Downloads/lyrics-status-3.0.7/lyrics-status-3.0.7/src/Settings.ts)
+  - [desktop.ts](file:///c:/Users/Bao/Downloads/lyrics-status-3.0.7/lyrics-status-3.0.7/src/desktop.ts)
+  - [panel.js](file:///c:/Users/Bao/Downloads/lyrics-status-3.0.7/lyrics-status-3.0.7/static/panel.js)
+  - [YouTubeMusicApiService.ts](file:///c:/Users/Bao/Downloads/lyrics-status-3.0.7/lyrics-status-3.0.7/src/YouTubeMusicApiService.ts)
+  - [YouTubeMusicWebService.ts](file:///c:/Users/Bao/Downloads/lyrics-status-3.0.7/lyrics-status-3.0.7/src/YouTubeMusicWebService.ts)
+- Kiến thức/công nghệ đã dùng:
+  - Electron `BrowserWindow.getBounds()` and `BrowserWindow.setBounds()`.
+  - Settings JSON serialization.
+  - Timeline progress estimation based on local clock elapsed time.
+- Các bước đã làm:
+  1. Thêm cấu trúc lưu trữ toạ độ và kích thước cửa sổ trong Settings schema và lưu lại trước khi đóng cửa sổ.
+  2. Bổ sung sự kiện phục hồi cửa sổ lúc khởi chạy ứng dụng.
+  3. Ẩn nút resize button trong các style mini của panel.js.
+  4. Nội suy thời gian tiến trình YouTube Music mượt mà dựa trên thời gian cục bộ từ lần nhận payload gần nhất.
+  5. Biên dịch và đóng gói thành công bộ cài.
+- Kiểm tra:
+  - Mở app, di chuyển, co giãn cửa sổ và đóng app -> khi mở lại, cửa sổ được khôi phục chính xác.
+  - YouTube Music chạy mượt mà thanh tiến trình trên giao diện panel.
+- Kết quả:
+  - Vị trí cửa sổ được lưu tự động, tiến trình YouTube Music nội suy chính xác.
+
+### 2026-06-22 - v1.4.0: Sửa Lỗi Lệch Nhịp YT Music, Điều Khiển Shuffle & Repeat & Đóng Gói v1.4.0
+
+- Agent: Antigravity
+- Skill đã dùng:
   - diagnosing-bugs
   - codebase-design
 - Mục tiêu:
-  - Bổ sung 5 nút chức năng hoàn chỉnh (Trộn bài, Lùi bài, Phát/Tạm dừng, Tiến bài, Lặp lại) hỗ trợ cả Spotify và YouTube Music.
-  - Thêm tính năng Auto Update, Check Update hoạt động qua GitHub Releases.
-  - Lưu và khôi phục kích thước, vị trí cửa sổ Electron khi đóng/mở lại app.
-  - Click/kéo thanh thời gian để tua bài (playback seek).
-  - Tự động bù trừ độ trễ đồng bộ (+400ms) và cho phép trộn bài/lặp lại hoạt động mượt mà trên YouTube Music (API & Web Extension).
+  - Bù trừ độ trễ hiển thị lyric (+400ms) cho các nguồn YouTube Music.
+  - Hỗ trợ đầy đủ các nút Trộn bài (Shuffle) và Lặp lại (Repeat) cho nguồn YouTube Music (cả bản Desktop App và Web Extension).
+  - Soạn thảo tài liệu và đóng gói phiên bản v1.4.0 để phát hành chính thức.
 - File đã sửa:
   - [package.json](file:///c:/Users/Bao/Downloads/lyrics-status-3.0.7/lyrics-status-3.0.7/package.json)
   - [VERSION](file:///c:/Users/Bao/Downloads/lyrics-status-3.0.7/lyrics-status-3.0.7/VERSION)
@@ -484,11 +513,7 @@ Get-Process DiscordLyrics -ErrorAction SilentlyContinue
   - [YouTubeMusicWebService.ts](file:///c:/Users/Bao/Downloads/lyrics-status-3.0.7/lyrics-status-3.0.7/src/YouTubeMusicWebService.ts)
   - [content.js](file:///c:/Users/Bao/Downloads/lyrics-status-3.0.7/lyrics-status-3.0.7/browser-extension/ytmusic-web/content.js)
   - [Server.ts](file:///c:/Users/Bao/Downloads/lyrics-status-3.0.7/lyrics-status-3.0.7/src/Panel/Server.ts)
-  - [Settings.ts](file:///c:/Users/Bao/Downloads/lyrics-status-3.0.7/lyrics-status-3.0.7/src/Settings.ts)
-  - [desktop.ts](file:///c:/Users/Bao/Downloads/lyrics-status-3.0.7/lyrics-status-3.0.7/src/desktop.ts)
-  - [panel.js](file:///c:/Users/Bao/Downloads/lyrics-status-3.0.7/lyrics-status-3.0.7/static/panel.js)
 - Kiến thức/công nghệ đã dùng:
-  - Electron window size/position state persistence.
   - YouTube Music Desktop companion API command server.
   - Browser extension DOM injection and event emulation (click simulation).
   - TypeScript compilation and Electron Builder packaging.
@@ -501,8 +526,9 @@ Get-Process DiscordLyrics -ErrorAction SilentlyContinue
 - Kiểm tra:
   - Chạy `npm run build` và `npm run package:desktop` thành công.
   - Bản cài đặt `DiscordLyricsSetup.exe` được tạo mới nhất ở phiên bản 1.4.0.
+  - Các nút trộn bài và lặp lại trên YouTube Music hoạt động tốt.
 - Kết quả:
-  - Tất cả các yêu cầu mới đều hoạt động trơn tru. Bộ cài đặt và các ghi chú phát hành đã sẵn sàng.
+  - Bản cài đặt và tài liệu phát hành v1.4.0 được hoàn thiện hoàn toàn.
 - Bài học:
   - Để tương tác đầy đủ với các ứng dụng bên thứ ba (như browser hoặc electron wrappers), việc click giả lập DOM qua content script hoặc gửi lệnh qua API chuyên dụng mang lại độ tin cậy cao hơn nhiều so với SMTC API của Windows.
 
