@@ -1,5 +1,23 @@
 $(
 `
+<header id="app-titlebar" aria-label="Thanh tiêu đề">
+    <div class="titlebar-left">
+        <img src="logo_discordlyric.png" alt="">
+        <span>DiscordLyrics Panel</span>
+    </div>
+    <div class="titlebar-surface"></div>
+    <div class="titlebar-actions">
+        <button id="window-minimize" class="titlebar-button" title="Thu nhỏ" type="button" aria-label="Thu nhỏ">
+            <svg viewBox="0 0 16 16"><path d="M3 8h10v1H3z"/></svg>
+        </button>
+        <button id="window-maximize" class="titlebar-button" title="Phóng to / khôi phục" type="button" aria-label="Phóng to hoặc khôi phục">
+            <svg viewBox="0 0 16 16"><path d="M4 4h8v8H4V4zm1 1v6h6V5H5z"/></svg>
+        </button>
+        <button id="window-close" class="titlebar-button close" title="Đóng xuống tray" type="button" aria-label="Đóng xuống tray">
+            <svg viewBox="0 0 16 16"><path d="m4.28 3.57 3.71 3.72 3.72-3.72.72.72L8.7 8l3.72 3.72-.72.72L8 8.72l-3.72 3.72-.72-.72L7.28 8 3.56 4.29z"/></svg>
+        </button>
+    </div>
+</header>
 <main id="app-shell" aria-label="DiscordLyrics">
     <aside id="discord-panel">
         <nav class="server-rail" aria-label="Điều hướng nhanh">
@@ -189,13 +207,6 @@ $(
                 <p class="kicker">Đang phát</p>
                 <h2 id="song-title">Chưa phát nhạc</h2>
                 <p id="song-artist">Mở Spotify hoặc SpotX để bắt đầu</p>
-                <div class="media-controls media-controls-popup" aria-label="Điều khiển nhạc pop-up">
-                    <button class="media-button" data-media-action="toggleShuffle" title="Trộn bài" type="button"><svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.45 20 9.5V4h-5.5zm.38 10.17l-1.42 1.41 3.17 3.17L14.5 20H20v-5.5l-2.04 2.04-3.08-3.17z"/></svg></button>
-                    <button class="media-button" data-media-action="previous" title="Lùi bài" type="button"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
-                    <button class="media-button media-button-play" data-media-action="playPause" title="Phát / tạm dừng" type="button"><svg class="play-symbol" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="pause-symbol" viewBox="0 0 24 24"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg></button>
-                    <button class="media-button" data-media-action="next" title="Qua bài" type="button"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm10-12h2v12h-2z"/></svg></button>
-                    <button class="media-button" data-media-action="cycleRepeat" title="Lặp lại" type="button"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
-                </div>
             </div>
             <div class="topbar-actions">
                 <span id="play-state" class="spotify-state idle">Đang chờ</span>
@@ -220,7 +231,10 @@ $(
             <div class="lyrics-content">
                 <p class="lyric-label">Lời bài hát</p>
                 <div id="lyrics-scroller" class="lyrics-scroller">
-                    <div class="lyric-line-item empty">Chưa có lyric để hiển thị</div>
+                    <div class="lyric-line-item empty empty-idle">
+                        <span class="empty-title">Spotify</span>
+                        <span class="empty-hint">Mở app nhạc và phát bài để bắt đầu</span>
+                    </div>
                 </div>
                 <div class="track-meta">
                     <span id="progress-time">0:00</span>
@@ -238,6 +252,20 @@ $(
                 </div>
             </div>
         </section>
+
+        <div class="mini-player-bar">
+            <div class="media-controls media-controls-popup" aria-label="Điều khiển nhạc pop-up">
+                <button class="media-button" data-media-action="toggleShuffle" title="Trộn bài" type="button"><svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.45 20 9.5V4h-5.5zm.38 10.17l-1.42 1.41 3.17 3.17L14.5 20H20v-5.5l-2.04 2.04-3.08-3.17z"/></svg></button>
+                <button class="media-button" data-media-action="previous" title="Lùi bài" type="button"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+                <button class="media-button media-button-play" data-media-action="playPause" title="Phát / tạm dừng" type="button"><svg class="play-symbol" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="pause-symbol" viewBox="0 0 24 24"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg></button>
+                <button class="media-button" data-media-action="next" title="Qua bài" type="button"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm10-12h2v12h-2z"/></svg></button>
+                <button class="media-button" data-media-action="cycleRepeat" title="Lặp lại" type="button"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
+            </div>
+        </div>
+
+        <div class="pill-progress-shell" aria-hidden="true">
+            <span id="pill-progress-fill"></span>
+        </div>
 
         <section class="spotify-footer">
             <article class="mini-card">
@@ -261,16 +289,26 @@ $(
         --discord-card-2: #2b2d31;
         --discord-border: rgba(255, 255, 255, .08);
         --discord-text: #f4f6fb;
-        --discord-muted: #a8adbb;
+        --discord-muted: #b4b9c6;
         --accent: #5865f2;
-        --accent-2: #23d172;
+        --accent-2: #1db954;
+        --source-accent: #1db954;
+        --source-accent-soft: rgba(29, 185, 84, .14);
+        --source-accent-border: rgba(29, 185, 84, .32);
         --spotify-bg: #0a0c0b;
         --spotify-card: #111513;
         --spotify-soft: #1b211e;
         --spotify-text: #f7fff9;
-        --spotify-muted: #9ca7a0;
+        --spotify-muted: #a8b5ae;
         --danger: #ff677d;
         --radius: 18px;
+    }
+
+    body.ytmusic-source {
+        --source-accent: #ff0033;
+        --source-accent-soft: rgba(255, 0, 51, .14);
+        --source-accent-border: rgba(255, 0, 51, .32);
+        --accent-2: #ff0033;
     }
 
     * {
@@ -316,6 +354,92 @@ $(
         user-select: none;
     }
 
+    #app-titlebar {
+        position: relative;
+        z-index: 20;
+        display: grid;
+        grid-template-columns: minmax(340px, 37vw) minmax(0, 1fr) auto;
+        height: 38px;
+        color: #e8ecf6;
+        background: transparent;
+        -webkit-app-region: drag;
+    }
+
+    .titlebar-left,
+    .titlebar-surface,
+    .titlebar-actions {
+        min-width: 0;
+        height: 38px;
+        background: var(--discord-panel);
+        border-bottom: 1px solid rgba(255, 255, 255, .075);
+    }
+
+    .titlebar-left {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 0 12px;
+        border-right: 1px solid rgba(255, 255, 255, .06);
+    }
+
+    .titlebar-left img {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, .12);
+    }
+
+    .titlebar-left span {
+        overflow: hidden;
+        color: #eef2fb;
+        font-size: 12px;
+        font-weight: 650;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .titlebar-surface {
+        box-shadow: 0 14px 34px rgba(0, 0, 0, .16);
+    }
+
+    .titlebar-actions {
+        display: flex;
+        align-items: stretch;
+        justify-content: flex-end;
+        overflow: hidden;
+        box-shadow: 12px 14px 34px rgba(0, 0, 0, .18);
+        -webkit-app-region: no-drag;
+    }
+
+    .titlebar-button {
+        display: grid;
+        width: 48px;
+        height: 38px;
+        place-items: center;
+        border: 0;
+        color: rgba(238, 242, 251, .72);
+        background: transparent;
+        cursor: pointer;
+        outline: none;
+        transition: background .14s ease, color .14s ease;
+    }
+
+    .titlebar-button svg {
+        width: 15px;
+        height: 15px;
+        fill: currentColor;
+    }
+
+    .titlebar-button:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, .08);
+    }
+
+    .titlebar-button.close:hover {
+        color: #fff;
+        background: #e84d5b;
+    }
+
     button,
     input,
     textarea {
@@ -324,8 +448,8 @@ $(
 
     #app-shell {
         display: grid;
-        grid-template-columns: minmax(360px, 41vw) minmax(0, 1fr);
-        height: 100dvh;
+        grid-template-columns: minmax(340px, 37vw) minmax(0, 1fr);
+        height: calc(100dvh - 38px);
         overflow: hidden;
         background:
             radial-gradient(circle at 12% 8%, rgba(88, 101, 242, .2), transparent 28%),
@@ -336,8 +460,8 @@ $(
         display: grid;
         grid-template-columns: 72px minmax(0, 1fr);
         min-width: 0;
-        height: 100dvh;
-        max-height: 100dvh;
+        height: 100%;
+        max-height: 100%;
         overflow: hidden;
         border-right: 1px solid rgba(255, 255, 255, .1);
         background: var(--discord-panel);
@@ -347,8 +471,8 @@ $(
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 14px;
-        padding: 18px 10px;
+        gap: 12px;
+        padding: 16px 12px;
         background: var(--discord-rail);
         border-right: 1px solid rgba(255, 255, 255, .06);
     }
@@ -457,7 +581,7 @@ $(
         min-width: 0;
         height: 100%;
         overflow-y: auto;
-        padding: 24px;
+        padding: 24px 24px 36px;
         scrollbar-color: #18191f transparent;
     }
 
@@ -496,8 +620,8 @@ $(
     .top-card h1 {
         max-width: 520px;
         color: #fff;
-        font-size: clamp(25px, 3vw, 42px);
-        line-height: 1.05;
+        font-size: clamp(24px, 2.6vw, 34px);
+        line-height: 1.08;
         font-weight: 900;
     }
 
@@ -581,6 +705,7 @@ $(
         display: grid;
         grid-template-columns: minmax(0, 1fr) 112px;
         gap: 10px;
+        align-items: stretch;
     }
 
     .text-input,
@@ -703,7 +828,7 @@ $(
     }
 
     .switch-row input:checked + i {
-        background: var(--accent);
+        background: var(--source-accent);
     }
 
     .switch-row input:checked + i::after {
@@ -720,8 +845,8 @@ $(
         margin: 10px 0;
         padding: 13px;
         border-radius: 14px;
-        border: 1px solid rgba(88, 101, 242, .22);
-        background: rgba(88, 101, 242, .1);
+        border: 1px solid var(--source-accent-border);
+        background: var(--source-accent-soft);
     }
 
     .preview-panel span {
@@ -816,7 +941,7 @@ $(
         display: grid;
         grid-template-rows: auto minmax(260px, 1fr) auto;
         min-width: 0;
-        height: 100dvh;
+        height: 100%;
         overflow: hidden;
         padding: 24px;
         background:
@@ -848,9 +973,9 @@ $(
 
     .spotify-topbar h2 {
         color: var(--spotify-text);
-        font-size: clamp(24px, 3vw, 42px);
-        line-height: 1.04;
-        font-weight: 950;
+        font-size: clamp(22px, 2.6vw, 34px);
+        line-height: 1.06;
+        font-weight: 900;
     }
 
     .spotify-topbar p:last-child {
@@ -861,8 +986,8 @@ $(
     }
 
     .spotify-state {
-        background: rgba(35, 209, 114, .12);
-        border-color: rgba(35, 209, 114, .3);
+        background: var(--source-accent-soft);
+        border-color: var(--source-accent-border);
         color: #c6f7d7;
     }
 
@@ -920,6 +1045,7 @@ $(
         margin-bottom: 16px;
         display: flex;
         flex-direction: column;
+        align-items: center;
         gap: 24px;
         scroll-behavior: smooth;
         mask-image: linear-gradient(to bottom, transparent 0%, white 15%, white 85%, transparent 100%);
@@ -935,37 +1061,65 @@ $(
     }
 
     .lyric-line-item {
-        color: rgba(247, 255, 249, 0.45);
-        font-size: clamp(20px, 2.8vw, 36px);
-        line-height: 1.25;
-        font-weight: 850;
+        width: 100%;
+        max-width: 42ch;
+        color: rgba(247, 255, 249, 0.58);
+        font-size: clamp(20px, 2.8vw, 34px);
+        line-height: 1.28;
+        font-weight: 800;
+        text-align: center;
         text-wrap: balance;
         transition: color 0.3s ease, transform 0.3s ease;
-        transform-origin: left center;
+        transform-origin: center center;
         user-select: text;
         cursor: default;
     }
 
     .lyric-line-item.active {
         color: #fff;
-        transform: scale(1.04);
+        transform: scale(1.02);
         text-shadow: 0 4px 16px rgba(255, 255, 255, 0.18);
     }
 
     .lyric-line-item.empty {
-        color: rgba(247, 255, 249, 0.6);
-        font-size: clamp(24px, 3.2vw, 42px);
-        font-weight: 900;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        max-width: 28ch;
+        color: rgba(247, 255, 249, 0.72);
+        font-size: clamp(20px, 2.8vw, 30px);
+        font-weight: 800;
         text-align: center;
         margin-top: auto;
         margin-bottom: auto;
     }
 
+    .lyric-line-item.empty-idle .empty-title {
+        font-size: clamp(24px, 3.2vw, 36px);
+        font-weight: 900;
+        color: rgba(247, 255, 249, 0.42);
+        letter-spacing: -0.02em;
+    }
+
+    .lyric-line-item.empty-idle .empty-hint {
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.45;
+        color: rgba(247, 255, 249, 0.52);
+    }
+
+    .lyrics-stage.idle .lyric-orb {
+        opacity: 0.28;
+    }
+
     .lyric-label {
         margin: 0 0 16px;
-        color: rgba(247, 255, 249, .6);
-        font-size: 13px;
-        font-weight: 900;
+        color: rgba(247, 255, 249, .68);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
     }
 
@@ -1011,7 +1165,7 @@ $(
         width: 4%;
         height: 100%;
         border-radius: inherit;
-        background: var(--accent-2);
+        background: var(--source-accent);
         transition: width .32s ease;
     }
 
@@ -1058,7 +1212,7 @@ $(
 
     .media-button[data-media-action="toggleShuffle"].active,
     .media-button[data-media-action="cycleRepeat"].active {
-        color: #1db954 !important;
+        color: var(--source-accent) !important;
     }
 
     .media-button[data-media-action="toggleShuffle"].active::after,
@@ -1071,7 +1225,7 @@ $(
         width: 4px;
         height: 4px;
         border-radius: 50%;
-        background-color: #1db954;
+        background-color: var(--source-accent);
     }
 
     .media-button[data-media-action="cycleRepeat"].repeat-track::before {
@@ -1081,7 +1235,7 @@ $(
         right: 4px;
         font-size: 8px;
         font-weight: bold;
-        background: #1db954;
+        background: var(--source-accent);
         color: #000;
         width: 10px;
         height: 10px;
@@ -1147,10 +1301,14 @@ $(
         grid-template-columns: minmax(240px, .72fr) minmax(300px, 1fr);
         gap: 14px;
         margin-top: 14px;
+        align-items: stretch;
     }
 
     .mini-card {
         min-width: 0;
+        min-height: 96px;
+        display: flex;
+        flex-direction: column;
         border-radius: var(--radius);
         border: 1px solid rgba(255, 255, 255, .08);
         background: rgba(17, 21, 19, .88);
@@ -1177,6 +1335,7 @@ $(
 
     #terminal-output {
         margin: 0;
+        flex: 1;
         max-height: 96px;
         overflow: hidden auto;
         scrollbar-color: #1a1b20 transparent;
@@ -1184,8 +1343,13 @@ $(
         color: #dce4de;
         font-family: "Cascadia Mono", Consolas, monospace;
         font-size: 12px;
-        line-height: 1.45;
+        line-height: 1.55;
         user-select: text;
+    }
+
+    .mini-player-bar,
+    .pill-progress-shell {
+        display: none;
     }
 
     .modal {
@@ -1440,12 +1604,12 @@ $(
             radial-gradient(circle at 60% 70%, hsla(var(--dynamic-hue, 0), 65%, 40%, 0.3), transparent 54%);
     }
     #spotify-panel.ytmusic-theme #progress-fill {
-        background: #ff0000;
+        background: var(--source-accent);
     }
     #spotify-panel.ytmusic-theme .spotify-state.playing {
-        background: rgba(255, 0, 0, .12);
-        border-color: rgba(255, 0, 0, .3);
-        color: #ffcccc;
+        background: var(--source-accent-soft);
+        border-color: var(--source-accent-border);
+        color: #ffd6de;
     }
     .rail-dot {
         cursor: pointer;
@@ -1487,6 +1651,10 @@ $(
         display: none !important;
     }
 
+    body.mini-mode #app-titlebar {
+        display: none !important;
+    }
+
     html.mini-mode,
     body.mini-mode,
     body.mini-mode #app-shell {
@@ -1507,21 +1675,25 @@ $(
     }
 
     body.mini-mode #spotify-panel {
+        container-type: inline-size;
         position: relative !important;
         display: grid !important;
         grid-template-rows: auto minmax(0, 1fr) auto !important;
-        gap: 12px !important;
-        padding: 14px !important;
+        gap: 14px !important;
+        padding: 16px !important;
         border-radius: 24px !important;
         clip-path: inset(0 round 24px) !important;
         transform: translateZ(0) !important;
-        border: 1px solid rgba(255, 255, 255, 0.12) !important;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -26px 70px rgba(0, 0, 0, 0.22) !important;
+        border: 1px solid rgba(255, 255, 255, 0.14) !important;
+        box-shadow:
+            0 10px 36px rgba(0, 0, 0, 0.42),
+            inset 0 1px 0 rgba(255, 255, 255, 0.12),
+            inset 0 -26px 70px rgba(0, 0, 0, 0.22) !important;
         background:
             radial-gradient(circle at 18% 14%, hsla(var(--dynamic-hue, 145), 55%, 46%, 0.32), transparent 34%),
             linear-gradient(145deg, hsla(var(--dynamic-hue, 145), 42%, 18%, 0.92), hsla(var(--dynamic-hue, 145), 36%, 8%, 0.95) 58%, rgba(16, 18, 16, 0.96)) !important;
-        backdrop-filter: blur(22px) saturate(145%) !important;
-        -webkit-backdrop-filter: blur(22px) saturate(145%) !important;
+        backdrop-filter: blur(24px) saturate(160%) !important;
+        -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
         overflow: hidden !important;
         width: 100% !important;
         height: 100vh !important;
@@ -1608,24 +1780,14 @@ $(
         display: none !important;
     }
 
-    body.mini-mode #song-title {
-        font-size: 17px !important;
-        font-weight: 800 !important;
-        color: #fff !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        max-width: calc(100% - 40px) !important;
-    }
-
     body.mini-mode #song-artist {
-        font-size: 13px !important;
-        color: rgba(255, 255, 255, 0.6) !important;
+        font-size: clamp(11px, 3.6cqw, 13px) !important;
+        color: rgba(255, 255, 255, 0.62) !important;
         margin-top: 2px !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        max-width: calc(100% - 40px) !important;
+        max-width: 100% !important;
     }
 
     body.mini-mode .spotify-footer {
@@ -1633,7 +1795,7 @@ $(
     }
 
     body.mini-mode .lyrics-content {
-        padding: 16px !important;
+        padding: 18px 18px 12px !important;
         min-height: 0 !important;
         overflow: hidden !important;
     }
@@ -1676,11 +1838,12 @@ $(
     }
 
     body.mini-mode .lyric-line-item {
-        font-size: clamp(18px, 5vw, 24px) !important;
-        color: rgba(255, 255, 255, 0.4) !important;
+        font-size: clamp(14px, 5cqw, 22px) !important;
+        color: rgba(255, 255, 255, 0.52) !important;
         opacity: 1 !important;
         transform: none !important;
-        line-height: 1.18 !important;
+        line-height: 1.22 !important;
+        max-width: 36ch !important;
     }
 
     body.mini-mode .lyric-line-item.active {
@@ -1694,18 +1857,20 @@ $(
     }
 
     body.mini-mode .progress-shell {
-        height: 4px !important;
-        margin-top: 2px !important;
-        border-radius: 2px !important;
-        background: rgba(255, 255, 255, 0.12) !important;
+        height: 5px !important;
+        margin-top: 10px !important;
+        border-radius: 999px !important;
+        background: rgba(255, 255, 255, 0.14) !important;
     }
 
     body.mini-mode #progress-fill {
-        background: #1db954 !important;
+        background: var(--source-accent) !important;
     }
 
-    body.mini-mode #spotify-panel.ytmusic-theme #progress-fill {
-        background: #ff0000 !important;
+    body.mini-mode .mini-player-bar {
+        display: block !important;
+        grid-row: 3 !important;
+        -webkit-app-region: no-drag;
     }
 
     body.mini-mode .media-controls-main {
@@ -1714,21 +1879,21 @@ $(
 
     body.mini-mode .media-controls-popup {
         display: flex !important;
-        justify-content: flex-start !important;
+        justify-content: center !important;
         align-items: center !important;
-        gap: 7px !important;
-        margin-top: 6px !important;
+        gap: 10px !important;
+        margin: 0 !important;
     }
 
     body.mini-mode .media-controls-popup .media-button {
-        width: 26px !important;
-        height: 26px !important;
-        color: rgba(255, 255, 255, .68) !important;
+        width: 28px !important;
+        height: 28px !important;
+        color: rgba(255, 255, 255, .72) !important;
     }
 
     body.mini-mode .media-controls-popup .media-button-play {
-        width: 36px !important;
-        height: 36px !important;
+        width: 38px !important;
+        height: 38px !important;
         color: #050505 !important;
         background: #fff !important;
     }
@@ -1736,6 +1901,16 @@ $(
     body.mini-mode .media-controls-popup .media-button svg {
         width: 18px !important;
         height: 18px !important;
+    }
+
+    body.mini-mode #song-title {
+        font-size: clamp(13px, 4.5cqw, 17px) !important;
+        font-weight: 800 !important;
+        color: #fff !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 100% !important;
     }
 
     body.mini-mode *::-webkit-scrollbar {
@@ -1751,14 +1926,19 @@ $(
         body.mini-mode #spotify-panel {
             grid-template-rows: auto !important;
             gap: 0 !important;
-            padding: 8px 10px !important;
+            padding: 10px 12px 14px !important;
             border-radius: 14px !important;
             clip-path: inset(0 round 14px) !important;
         }
 
         body.mini-mode .spotify-topbar {
             grid-template-columns: 36px minmax(0, 1fr) auto !important;
-            gap: 8px !important;
+            gap: 10px !important;
+            align-items: center !important;
+        }
+
+        body.mini-mode .mini-player-bar {
+            display: none !important;
         }
 
         body.mini-mode .media-controls-popup {
@@ -1769,27 +1949,29 @@ $(
             display: flex !important;
             align-items: center !important;
             justify-content: flex-end !important;
-            gap: 7px !important;
+            gap: 8px !important;
         }
 
         body.mini-mode .mini-media-button {
-            width: 26px !important;
-            height: 26px !important;
-            color: rgba(255, 255, 255, .74) !important;
+            width: 28px !important;
+            height: 28px !important;
+            color: rgba(255, 255, 255, .78) !important;
             padding: 0 !important;
+            border-radius: 50% !important;
+            background: rgba(255, 255, 255, 0.08) !important;
         }
 
         body.mini-mode .mini-media-play {
-            width: 36px !important;
-            height: 36px !important;
+            width: 32px !important;
+            height: 32px !important;
             border-radius: 50% !important;
             color: #050505 !important;
             background: #fff !important;
         }
 
         body.mini-mode .mini-media-button svg {
-            width: 18px !important;
-            height: 18px !important;
+            width: 16px !important;
+            height: 16px !important;
         }
 
         body.mini-mode .popup-artwork {
@@ -1823,9 +2005,32 @@ $(
             display: none !important;
         }
 
+        body.mini-mode .pill-progress-shell {
+            display: block !important;
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            bottom: 5px;
+            height: 2px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            overflow: hidden;
+            pointer-events: none;
+            -webkit-app-region: no-drag;
+        }
+
+        body.mini-mode #pill-progress-fill {
+            display: block;
+            height: 100%;
+            width: 4%;
+            border-radius: inherit;
+            background: var(--source-accent);
+            transition: width .32s ease;
+        }
+
         body.mini-mode #spotify-panel::after {
             right: 5px;
-            bottom: 5px;
+            bottom: 10px;
             width: 10px;
             height: 10px;
         }
@@ -1833,14 +2038,14 @@ $(
 
     @media (max-height: 70px) {
         body.mini-mode #spotify-panel {
-            padding: 8px 10px !important;
+            padding: 8px 12px 12px !important;
             border-radius: 12px !important;
             clip-path: inset(0 round 12px) !important;
         }
 
         body.mini-mode .spotify-topbar {
             grid-template-columns: 32px minmax(0, 1fr) auto !important;
-            gap: 7px !important;
+            gap: 8px !important;
         }
 
         body.mini-mode .popup-artwork {
@@ -1863,6 +2068,10 @@ $(
             display: none !important;
         }
 
+        body.mini-mode .mini-player-bar {
+            display: none !important;
+        }
+
         body.mini-mode .media-controls-popup {
             display: none !important;
         }
@@ -1874,13 +2083,39 @@ $(
             gap: 6px !important;
         }
 
+        body.mini-mode .mini-media-play {
+            width: 30px !important;
+            height: 30px !important;
+        }
+
         body.mini-mode .icon-button {
             display: none !important;
         }
 
+        body.mini-mode .pill-progress-shell {
+            display: block !important;
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            bottom: 4px;
+            height: 2px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        body.mini-mode #pill-progress-fill {
+            display: block;
+            height: 100%;
+            width: 4%;
+            border-radius: inherit;
+            background: var(--source-accent);
+        }
+
         body.mini-mode #spotify-panel::after {
             right: 4px;
-            bottom: 4px;
+            bottom: 8px;
             width: 8px;
             height: 8px;
         }
@@ -1921,8 +2156,14 @@ const progressTime = $("#progress-time")
 const lyricSource = $("#lyric-source")
 const playState = $("#play-state")
 const progressFill = $("#progress-fill")
+const pillProgressFill = $("#pill-progress-fill")
 const progressShell = $(".progress-shell")
 const statusMini = $("#status-mini")
+const titlebar = $("#app-titlebar")
+const titlebarMinimize = $("#window-minimize")
+const titlebarMaximize = $("#window-maximize")
+const titlebarClose = $("#window-close")
+const windowControls = window.discordLyricsWindow
 
 const spotifyRailDot = $(".rail-dot:has(img[alt='Spotify'])")
 const ytmusicRailDot = $(".rail-dot:has(img[alt='YouTube Music'])")
@@ -1955,6 +2196,15 @@ $("#toggle-mini-player").on("click", () => {
     settings.view.miniMode = !isMini
     $("html, body").toggleClass("mini-mode", !isMini)
     saveSettings()
+})
+
+titlebarMinimize.on("click", () => windowControls && windowControls.minimize())
+titlebarMaximize.on("click", () => windowControls && windowControls.toggleMaximize())
+titlebarClose.on("click", () => windowControls && windowControls.close())
+
+titlebar.on("dblclick", (event) => {
+    if ($(event.target).closest("button").length) return
+    if (windowControls) windowControls.toggleMaximize()
 })
 
 let settings = {
@@ -2032,6 +2282,7 @@ checkTokenButton.on("click", async () => {
     }
 
     setTokenState("Đã kết nối", "ok")
+    notifyDiscordTokenValidated()
     modal("Kiểm tra token", "Token hợp lệ. App có thể cập nhật trạng thái Discord.", "rgba(137, 245, 174, 1)")
 })
 
@@ -2239,6 +2490,7 @@ function updateSeekPreview(event) {
     const positionMs = Math.round((percent / 100) * latestPlaybackDurationMs)
 
     progressFill.css("width", `${percent}%`)
+    pillProgressFill.css("width", `${percent}%`)
     progressShell.css("--progress-percent", percent)
     progressTime.text(formatSeconds(positionMs / 1000))
 }
@@ -2338,6 +2590,17 @@ function saveSettings() {
     }))
 }
 
+function notifyDiscordTokenValidated() {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return
+
+    ws.send(JSON.stringify({
+        type: "discord-token-validated",
+        payload: {
+            token: settings.credentials.token
+        }
+    }))
+}
+
 function updateDiscordButtonState() {
     const isEnabled = settings.view.discordEnabled !== false;
     $(".rail-logo img").attr("src", isEnabled ? "logo_discordlyric.png" : "logo_discordlyric_red.png");
@@ -2346,6 +2609,7 @@ function updateDiscordButtonState() {
 function applySourceTheme(source) {
     const isYtMusic = source === "ytmusic"
 
+    $("body").toggleClass("ytmusic-source", isYtMusic).toggleClass("spotify-source", !isYtMusic)
     spotifyRailDot.toggleClass("active", !isYtMusic)
     ytmusicRailDot.toggleClass("active", isYtMusic)
     $("#spotify-panel").toggleClass("ytmusic-theme", isYtMusic)
@@ -2455,12 +2719,13 @@ function updatePlayback(playback) {
     latestPlaybackDurationMs = Number(playback.durationMs || 0)
     const progressValue = getPlaybackProgressPercent(playback)
 
-    songTitle.text(song)
-    songArtist.text(artist)
+    songTitle.text(song).attr("title", song)
+    songArtist.text(artist).attr("title", artist)
     progressTime.text(progress)
     lyricSource.text(`Nguồn lyric: ${source}`)
     if (!isSeeking) {
         progressFill.css("width", `${progressValue}%`)
+        pillProgressFill.css("width", `${progressValue}%`)
         progressShell.css("--progress-percent", progressValue)
         progressShell.attr("aria-valuemin", 0)
         progressShell.attr("aria-valuemax", latestPlaybackDurationMs || 0)
@@ -2468,6 +2733,7 @@ function updatePlayback(playback) {
     }
     playState.text(isPlaying ? "Đang phát" : "Đang chờ").toggleClass("playing", isPlaying).toggleClass("idle", !isPlaying)
     $("body").toggleClass("playback-playing", isPlaying)
+    $(".lyrics-stage").toggleClass("idle", !hasSong)
     statusMini.text(discordText)
 
     // Update shuffle button active state
@@ -2521,8 +2787,17 @@ Nguồn lyric: ${source}
                 lyricsScroller.append(lineEl)
             })
         } else {
-            const emptyText = playback.lyricsDisplayBase || "Chưa có lyric để hiển thị"
-            lyricsScroller.append($("<div>").addClass("lyric-line-item empty").text(emptyText))
+            const emptyEl = $("<div>").addClass("lyric-line-item empty")
+            if (!hasSong) {
+                const sourceLabel = activeSource === "ytmusic" ? "YouTube Music" : "Spotify"
+                emptyEl
+                    .addClass("empty-idle")
+                    .append($("<span>").addClass("empty-title").text(sourceLabel))
+                    .append($("<span>").addClass("empty-hint").text("Mở app nhạc và phát bài để bắt đầu"))
+            } else {
+                emptyEl.text(playback.lyricsDisplayBase || "Chưa có lyric để hiển thị")
+            }
+            lyricsScroller.append(emptyEl)
         }
     }
 

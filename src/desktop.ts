@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, shell, Tray } from "electron"
+import { app, BrowserWindow, ipcMain, Menu, shell, Tray } from "electron"
 import { join } from "node:path"
 import { Settings } from "./Settings"
 import { shutdown } from "./index"
@@ -62,7 +62,7 @@ function createWindow(): void {
         minWidth: isMini ? 250 : 900,
         minHeight: isMini ? 50 : 560,
         alwaysOnTop: isMini,
-        frame: !isMini,
+        frame: false,
         transparent: isMini,
         resizable: true,
         hasShadow: !isMini,
@@ -72,7 +72,8 @@ function createWindow(): void {
         autoHideMenuBar: true,
         webPreferences: {
             contextIsolation: true,
-            nodeIntegration: false
+            nodeIntegration: false,
+            preload: join(__dirname, "preload.js")
         }
     })
 
@@ -152,6 +153,26 @@ function createTray(): void {
 }
 
 app.setAppUserModelId(appUserModelId)
+
+ipcMain.handle("window:minimize", () => {
+    mainWindow?.minimize()
+})
+
+ipcMain.handle("window:toggle-maximize", () => {
+    if (!mainWindow) return false
+
+    if (mainWindow.isMaximized()) {
+        mainWindow.unmaximize()
+        return false
+    }
+
+    mainWindow.maximize()
+    return true
+})
+
+ipcMain.handle("window:close", () => {
+    mainWindow?.close()
+})
 
 app.whenReady().then(() => {
     createWindow()

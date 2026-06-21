@@ -110,6 +110,7 @@ async function init(): Promise<void> {
 
     const statusChanger = new StatusChanger(playbackState)
     globalStatusChanger = statusChanger
+    ;(global as any).resetDiscordTokenBlock = (token?: string) => statusChanger.resetTokenBlock(token)
 
     setInterval(() => {
         playbackStateUpdater.update()

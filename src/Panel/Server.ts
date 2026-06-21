@@ -225,6 +225,13 @@ export function startServer(refreshPlayback?: PlaybackRefresh): void {
 
         ws.on("message", (data) => {
             const message = JSON.parse(data.toString())
+            if (message.type === "discord-token-validated") {
+                if (typeof (global as any).resetDiscordTokenBlock === "function") {
+                    ;(global as any).resetDiscordTokenBlock(message.payload?.token)
+                }
+                return
+            }
+
             const settings = message.type === "settings" ? message.payload : message
             // Not typed but it's necessary
 
@@ -233,6 +240,8 @@ export function startServer(refreshPlayback?: PlaybackRefresh): void {
 
             const oldMiniMode = (Settings.view as any).miniMode || false
             const newMiniMode = settings.view.miniMode || false
+            const oldDiscordToken = Settings.credentials.token || ""
+            const newDiscordToken = settings.credentials.token || ""
 
             Settings.credentials = settings.credentials
             Settings.view = settings.view
@@ -240,6 +249,10 @@ export function startServer(refreshPlayback?: PlaybackRefresh): void {
             Settings.update = settings.update
 
             Settings.save()
+
+            if (oldDiscordToken !== newDiscordToken && typeof (global as any).resetDiscordTokenBlock === "function") {
+                ;(global as any).resetDiscordTokenBlock(newDiscordToken)
+            }
 
             if (oldMiniMode !== newMiniMode) {
                 if (typeof (global as any).toggleMiniMode === "function") {
